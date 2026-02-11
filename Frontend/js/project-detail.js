@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await Auth.init();
     
     const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get('id');
-    
-    if (!projectId) {
-        Utils.showToast('Project ID not specified', 'error');
+    const projectId = parseInt(urlParams.get('id'), 10);
+
+    if (!projectId || isNaN(projectId) || projectId < 1) {
+        Utils.showToast('Invalid project ID', 'error');
         window.location.href = 'projects.html';
         return;
     }
@@ -188,14 +188,20 @@ function calculateTotals() {
 }
 
 async function saveLaborRequirements() {
+    const saveBtn = document.getElementById('saveLaborRequirements');
     const gridContainer = document.getElementById('planningGrid');
     const cells = gridContainer.querySelectorAll('.editable-cell');
-    
+
     const requirements = [];
     cells.forEach(cell => {
         const input = cell.querySelector('.hour-input');
         const hours = parseFloat(input.value) || 0;
-        
+
+        if (hours < 0 || hours > 168) {
+            Utils.showToast('Hours must be between 0 and 168', 'error');
+            return;
+        }
+
         if (hours > 0) {
             requirements.push({
                 departmentId: getDepartmentIdByName(cell.dataset.dept),
@@ -204,18 +210,19 @@ async function saveLaborRequirements() {
             });
         }
     });
-    
+
     if (requirements.length === 0) {
         Utils.showToast('No hours to save', 'error');
         return;
     }
-    
+
+    saveBtn.disabled = true;
     try {
         const response = await API.resources.bulkSaveRequirements({
             projectId: currentProject.projectId,
             requirements: requirements
         });
-        
+
         if (response.success) {
             Utils.showToast('Labor requirements saved successfully', 'success');
             await loadPlanningGrid();
@@ -223,21 +230,15 @@ async function saveLaborRequirements() {
     } catch (error) {
         console.error('Error saving requirements:', error);
         Utils.showToast('Error saving requirements', 'error');
+    } finally {
+        saveBtn.disabled = false;
     }
 }
 
+// Derive department ID from labor requirements data instead of hardcoded map
 function getDepartmentIdByName(name) {
-    // This would need to be loaded from the API
-    // For now, we'll use a simple lookup
-    const deptMap = {
-        'Engineering': 1,
-        'UX Design': 2,
-        'QA Testing': 3,
-        'Marketing': 4,
-        'Operations': 5,
-        'Data Analytics': 6
-    };
-    return deptMap[name] || 0;
+    const req = laborRequirements.find(r => r.departmentName === name);
+    return req ? req.departmentId : 0;
 }
 
 // ============================================
@@ -373,24 +374,33 @@ async function loadAssignedEmployees() {
             
             let html = '<div class="assignment-list">';
             assignments.forEach(assignment => {
+                const safeId = parseInt(assignment.assignmentId, 10);
                 html += `
                     <div class="assignment-item">
                         <div class="assignment-info">
                             <strong>${escapeHtml(assignment.employeeName)}</strong>
-                            <span class="assignment-hours">${assignment.assignedHours} hrs</span>
+                            <span class="assignment-hours">${parseFloat(assignment.assignedHours).toFixed(1)} hrs</span>
                         </div>
                         <div class="assignment-actions">
-                            <button class="btn-icon" onclick="editAssignment(${assignment.assignmentId})" 
+                            <button class="btn-icon edit-assignment-btn" data-id="${safeId}"
                                     title="Edit">✏️</button>
-                            <button class="btn-icon" onclick="deleteAssignment(${assignment.assignmentId})" 
+                            <button class="btn-icon delete-assignment-btn" data-id="${safeId}"
                                     title="Remove">🗑️</button>
                         </div>
                     </div>
                 `;
             });
             html += '</div>';
-            
+
             panel.innerHTML = html;
+
+            // Attach event listeners instead of inline onclick
+            panel.querySelectorAll('.edit-assignment-btn').forEach(btn => {
+                btn.addEventListener('click', () => editAssignment(parseInt(btn.dataset.id, 10)));
+            });
+            panel.querySelectorAll('.delete-assignment-btn').forEach(btn => {
+                btn.addEventListener('click', () => deleteAssignment(parseInt(btn.dataset.id, 10)));
+            });
         }
     } catch (error) {
         console.error('Error loading assignments:', error);
@@ -418,25 +428,39 @@ async function loadAvailableEmployees() {
             
             let html = '<div class="employee-list">';
             employees.forEach(emp => {
+                const safeId = parseInt(emp.employeeId, 10);
                 html += `
                     <div class="employee-item">
                         <div class="employee-info">
                             <strong>${escapeHtml(emp.firstName)} ${escapeHtml(emp.lastName)}</strong>
                             <div class="employee-meta">
                                 <span>${escapeHtml(emp.jobTitle)}</span>
-                                <span>Available: ${emp.availableHours.toFixed(1)} hrs</span>
+                                <span>Available: ${parseFloat(emp.availableHours).toFixed(1)} hrs</span>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-primary" 
-                                onclick="openAssignmentModal(${emp.employeeId}, '${escapeHtml(emp.firstName)} ${escapeHtml(emp.lastName)}', ${emp.availableHours})">
+                        <button class="btn btn-sm btn-primary assign-emp-btn"
+                                data-emp-id="${safeId}"
+                                data-emp-name="${escapeHtml(emp.firstName)} ${escapeHtml(emp.lastName)}"
+                                data-available="${parseFloat(emp.availableHours)}">
                             Assign
                         </button>
                     </div>
                 `;
             });
             html += '</div>';
-            
+
             panel.innerHTML = html;
+
+            // Attach event listeners instead of inline onclick
+            panel.querySelectorAll('.assign-emp-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    openAssignmentModal(
+                        parseInt(btn.dataset.empId, 10),
+                        btn.dataset.empName,
+                        parseFloat(btn.dataset.available)
+                    );
+                });
+            });
         }
     } catch (error) {
         console.error('Error loading available employees:', error);

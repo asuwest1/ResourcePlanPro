@@ -122,6 +122,15 @@ namespace ResourcePlanPro.API.Controllers
             [FromQuery] DateTime? startDate = null,
             [FromQuery] int weekCount = 12)
         {
+            if (weekCount < 1 || weekCount > 52)
+            {
+                return BadRequest(new ApiResponse<List<DepartmentUtilization>>
+                {
+                    Success = false,
+                    Message = "weekCount must be between 1 and 52"
+                });
+            }
+
             try
             {
                 var start = startDate ?? DateTime.Today;

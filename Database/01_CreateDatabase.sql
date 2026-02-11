@@ -214,14 +214,23 @@ CREATE TABLE AuditLog (
     Action NVARCHAR(50) NOT NULL CHECK (Action IN ('Insert', 'Update', 'Delete')),
     OldValues NVARCHAR(MAX) NULL,
     NewValues NVARCHAR(MAX) NULL,
+    IpAddress NVARCHAR(45) NULL,
+    UserAgent NVARCHAR(500) NULL,
     Timestamp DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    CONSTRAINT FK_AuditLog_UserId FOREIGN KEY (UserId) 
+    CONSTRAINT FK_AuditLog_UserId FOREIGN KEY (UserId)
         REFERENCES Users(UserId)
 );
 GO
 
 CREATE INDEX IX_AuditLog_TableName ON AuditLog(TableName);
 CREATE INDEX IX_AuditLog_Timestamp ON AuditLog(Timestamp);
+CREATE INDEX IX_AuditLog_UserId ON AuditLog(UserId);
+GO
+
+-- Additional indexes for frequently filtered columns
+CREATE INDEX IX_Users_IsActive ON Users(IsActive);
+CREATE INDEX IX_Employees_IsActive ON Employees(IsActive);
+CREATE INDEX IX_Projects_IsActive ON Projects(IsActive);
 GO
 
 PRINT 'Database schema created successfully';

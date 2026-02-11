@@ -104,7 +104,16 @@ namespace ResourcePlanPro.API.Utilities
                 return false;
             }
 
-            if (!email.Contains("@") || !email.Contains("."))
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                if (addr.Address != email)
+                {
+                    errorMessage = "Invalid email format";
+                    return false;
+                }
+            }
+            catch (FormatException)
             {
                 errorMessage = "Invalid email format";
                 return false;

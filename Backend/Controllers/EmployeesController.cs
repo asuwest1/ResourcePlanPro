@@ -84,6 +84,15 @@ namespace ResourcePlanPro.API.Controllers
             [FromQuery] DateTime? weekStartDate = null,
             [FromQuery] int weekCount = 12)
         {
+            if (weekCount < 1 || weekCount > 52)
+            {
+                return BadRequest(new ApiResponse<List<EmployeeWorkloadDto>>
+                {
+                    Success = false,
+                    Message = "weekCount must be between 1 and 52"
+                });
+            }
+
             try
             {
                 var workload = await _employeeService.GetEmployeeWorkloadAsync(id, weekStartDate, weekCount);

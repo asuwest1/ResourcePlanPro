@@ -1,8 +1,23 @@
 // Authentication Module
 const Auth = {
-    // Check if user is authenticated
+    // Check if user is authenticated (and token is not expired)
     isAuthenticated() {
-        return !!this.getToken();
+        const token = this.getToken();
+        if (!token) return false;
+
+        // Check token expiration from JWT payload
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.exp && Date.now() >= payload.exp * 1000) {
+                this.clearAuth();
+                return false;
+            }
+        } catch (e) {
+            // Malformed token
+            this.clearAuth();
+            return false;
+        }
+        return true;
     },
     
     // Get stored token

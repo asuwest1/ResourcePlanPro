@@ -125,7 +125,20 @@ CREATE OR ALTER PROCEDURE sp_GetAvailableEmployees
 AS
 BEGIN
     SET NOCOUNT ON;
-    
+
+    -- Validate parameters
+    IF @DepartmentId <= 0
+    BEGIN
+        RAISERROR('DepartmentId must be a positive integer', 16, 1);
+        RETURN;
+    END
+
+    IF @MinAvailableHours < 0
+    BEGIN
+        RAISERROR('MinAvailableHours cannot be negative', 16, 1);
+        RETURN;
+    END
+
     SELECT 
         e.EmployeeId,
         e.FirstName,
@@ -223,7 +236,14 @@ CREATE OR ALTER PROCEDURE sp_GetResourceTimeline
 AS
 BEGIN
     SET NOCOUNT ON;
-    
+
+    -- Validate parameters
+    IF @WeekCount < 1 OR @WeekCount > 52
+    BEGIN
+        RAISERROR('WeekCount must be between 1 and 52', 16, 1);
+        RETURN;
+    END
+
     -- Default to current week if not specified
     IF @StartDate IS NULL
         SET @StartDate = DATEADD(DAY, 1 - DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE));

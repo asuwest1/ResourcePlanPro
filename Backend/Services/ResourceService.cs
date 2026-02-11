@@ -45,18 +45,31 @@ namespace ResourcePlanPro.API.Services
 
             var requirements = await query.ToListAsync();
 
+            // Batch-load assigned hours to avoid N+1 query
+            var assignedHoursLookup = await _context.EmployeeAssignments
+                .Join(_context.Employees,
+                      a => a.EmployeeId,
+                      e => e.EmployeeId,
+                      (a, e) => new { Assignment = a, Employee = e })
+                .Where(x => x.Assignment.ProjectId == projectId)
+                .GroupBy(x => new { x.Assignment.ProjectId, x.Assignment.WeekStartDate, x.Employee.DepartmentId })
+                .Select(g => new
+                {
+                    g.Key.ProjectId,
+                    g.Key.WeekStartDate,
+                    g.Key.DepartmentId,
+                    TotalHours = g.Sum(x => x.Assignment.AssignedHours)
+                })
+                .ToListAsync();
+
             var result = new List<LaborRequirementDto>();
             foreach (var req in requirements)
             {
-                var assignedHours = await _context.EmployeeAssignments
-                    .Where(a => a.ProjectId == req.ProjectId && 
-                           a.WeekStartDate == req.WeekStartDate)
-                    .Join(_context.Employees,
-                          a => a.EmployeeId,
-                          e => e.EmployeeId,
-                          (a, e) => new { Assignment = a, Employee = e })
-                    .Where(x => x.Employee.DepartmentId == req.DepartmentId)
-                    .SumAsync(x => x.Assignment.AssignedHours);
+                var assignedHours = assignedHoursLookup
+                    .Where(a => a.ProjectId == req.ProjectId &&
+                                a.WeekStartDate == req.WeekStartDate &&
+                                a.DepartmentId == req.DepartmentId)
+                    .Sum(a => a.TotalHours);
 
                 result.Add(new LaborRequirementDto
                 {

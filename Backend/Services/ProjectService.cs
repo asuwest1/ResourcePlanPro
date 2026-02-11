@@ -84,7 +84,9 @@ namespace ResourcePlanPro.API.Services
                 ProjectName = project.ProjectName,
                 Description = project.Description,
                 ProjectManagerId = project.ProjectManagerId,
-                ProjectManagerName = $"{project.ProjectManager.FirstName} {project.ProjectManager.LastName}",
+                ProjectManagerName = project.ProjectManager != null
+                    ? $"{project.ProjectManager.FirstName} {project.ProjectManager.LastName}"
+                    : "Unassigned",
                 StartDate = project.StartDate,
                 EndDate = project.EndDate,
                 Priority = project.Priority,

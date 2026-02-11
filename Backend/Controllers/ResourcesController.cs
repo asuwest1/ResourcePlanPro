@@ -131,6 +131,15 @@ namespace ResourcePlanPro.API.Controllers
             [FromQuery] DateTime weekStartDate,
             [FromQuery] decimal minAvailableHours = 0)
         {
+            if (minAvailableHours < 0)
+            {
+                return BadRequest(new ApiResponse<List<EmployeeAvailabilityDto>>
+                {
+                    Success = false,
+                    Message = "minAvailableHours cannot be negative"
+                });
+            }
+
             try
             {
                 var employees = await _resourceService.GetAvailableEmployeesAsync(
@@ -308,6 +317,15 @@ namespace ResourcePlanPro.API.Controllers
             [FromQuery] DateTime? startDate = null,
             [FromQuery] int weekCount = 12)
         {
+            if (weekCount < 1 || weekCount > 52)
+            {
+                return BadRequest(new ApiResponse<List<TimelineDto>>
+                {
+                    Success = false,
+                    Message = "weekCount must be between 1 and 52"
+                });
+            }
+
             try
             {
                 var timeline = await _resourceService.GetResourceTimelineAsync(startDate, weekCount);
