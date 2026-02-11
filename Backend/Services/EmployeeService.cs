@@ -96,6 +96,9 @@ namespace ResourcePlanPro.API.Services
             DateTime? weekStartDate = null,
             int weekCount = 12)
         {
+            if (weekCount < 1 || weekCount > 52)
+                throw new ArgumentException("weekCount must be between 1 and 52");
+
             try
             {
                 var startDate = weekStartDate ?? DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1);

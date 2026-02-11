@@ -40,7 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 showError(result.message || 'Login failed');
             }
         } catch (error) {
-            showError(error.message || 'An error occurred during login');
+            // Show generic message; avoid leaking internal error details
+            const userMessage = (error.message && error.message.toLowerCase().includes('unauthorized'))
+                ? 'Invalid username or password'
+                : 'Login failed. Please try again.';
+            showError(userMessage);
         } finally {
             setLoading(false);
         }

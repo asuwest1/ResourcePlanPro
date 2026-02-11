@@ -70,7 +70,7 @@ There is no automated test suite (no xUnit, NUnit, or Jest). Testing is manual:
 - **Swagger UI:** `/swagger` endpoint for API testing in development
 - **PowerShell script:** `Scripts/Test-API.ps1` for API endpoint testing
 - **Sample data:** 150+ records loaded via `Database/02_SampleData.sql`
-- **Demo credentials:** `jsmith` / `Password123!` (Admin), also `mchen`, `sjohnson`, `erodriguez`, `dkim` (all `Password123!`)
+- **Demo credentials:** See `Database/02_SampleData.sql` or `Documentation/QUICKSTART.md` for test user accounts
 
 ## Linting & Formatting
 
@@ -115,10 +115,20 @@ No explicit linting or formatting tools are configured (no ESLint, Prettier, Edi
 - **CORS origins:** localhost ports 5000, 8080, 3000 (configured in appsettings.json)
 - **JWT:** 8-hour token expiration, secret key must be 32+ characters
 
+## Security Notes
+
+- **Password hashing:** PBKDF2 with random salt (100k iterations, SHA256). Legacy SHA256-only hashes are supported for verification during migration.
+- **JWT secrets:** Development key is in `appsettings.json` — must be replaced via environment variable or secrets vault in production.
+- **Security headers:** CSP, HSTS, X-Frame-Options (DENY), X-Content-Type-Options, Referrer-Policy, and Permissions-Policy are set in both middleware and `web.config`.
+- **CORS:** Restricted to specific origins, methods (`GET/POST/PUT/DELETE`), and headers (`Content-Type/Authorization/Accept`).
+- **Input validation:** `weekCount` parameters are bounded (1–52), `minAvailableHours` must be non-negative, and stored procedures validate parameters.
+- **Frontend:** No inline `onclick` handlers — all event binding uses `addEventListener`. `escapeHtml()` used for all user-generated content rendered via innerHTML. JWT token expiration is checked client-side.
+- **Demo credentials** are only in `Database/02_SampleData.sql` and documentation — removed from the login page HTML.
+
 ## Key Architectural Notes
 
-- No .gitignore file exists — consider adding one
 - Frontend has zero npm dependencies and no build pipeline
 - Backend uses EF Core with explicit eager loading (no lazy loading)
 - Database has 4 views and 4 stored procedures for analytics/reporting
 - HTTPS enforced in production; CORS configured for allowed origins
+- `.gitignore` covers build outputs, IDE files, logs, and database files

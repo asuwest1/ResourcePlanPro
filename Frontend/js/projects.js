@@ -61,14 +61,22 @@ function renderProjects() {
         html += `<td>${project.departmentCount}</td>`;
         html += `<td>${statusIcon} ${project.currentWeekAssignedHours.toFixed(0)}/${project.currentWeekRequiredHours.toFixed(0)} hrs</td>`;
         html += `<td>
-            <button class="btn-icon" onclick="viewProject(${project.projectId})" title="View">👁️</button>
-            <button class="btn-icon" onclick="editProject(${project.projectId})" title="Edit">✏️</button>
+            <button class="btn-icon view-btn" data-id="${parseInt(project.projectId, 10)}" title="View">👁️</button>
+            <button class="btn-icon edit-btn" data-id="${parseInt(project.projectId, 10)}" title="Edit">✏️</button>
         </td>`;
         html += '</tr>';
     });
     
     html += '</tbody></table></div>';
     container.innerHTML = html;
+
+    // Attach event listeners instead of inline onclick
+    container.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => viewProject(parseInt(btn.dataset.id, 10)));
+    });
+    container.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => editProject(parseInt(btn.dataset.id, 10)));
+    });
 }
 
 function initializeFilters() {

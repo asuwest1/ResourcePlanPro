@@ -59,15 +59,53 @@ namespace ResourcePlanPro.API.Services
 
         public string HashPassword(string password)
         {
-            using var sha256 = SHA256.Create();
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return BitConverter.ToString(hashedBytes).Replace("-", "");
+            // Use PBKDF2 with a random salt for secure password hashing
+            byte[] salt = new byte[16];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000, HashAlgorithmName.SHA256);
+            byte[] hash = pbkdf2.GetBytes(32);
+
+            // Combine salt + hash for storage
+            byte[] hashBytes = new byte[48];
+            Array.Copy(salt, 0, hashBytes, 0, 16);
+            Array.Copy(hash, 0, hashBytes, 16, 32);
+
+            return Convert.ToBase64String(hashBytes);
         }
 
-        public bool VerifyPassword(string password, string hash)
+        public bool VerifyPassword(string password, string storedHash)
         {
-            var hashedPassword = HashPassword(password);
-            return string.Equals(hashedPassword, hash, StringComparison.OrdinalIgnoreCase);
+            byte[] hashBytes;
+            try
+            {
+                hashBytes = Convert.FromBase64String(storedHash);
+            }
+            catch (FormatException)
+            {
+                // Fall back to legacy SHA256 comparison for existing accounts
+                using var sha256 = SHA256.Create();
+                var legacyHash = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                var legacyHashString = BitConverter.ToString(legacyHash).Replace("-", "");
+                return string.Equals(legacyHashString, storedHash, StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (hashBytes.Length != 48)
+                return false;
+
+            byte[] salt = new byte[16];
+            Array.Copy(hashBytes, 0, salt, 0, 16);
+
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000, HashAlgorithmName.SHA256);
+            byte[] computedHash = pbkdf2.GetBytes(32);
+
+            // Constant-time comparison to prevent timing attacks
+            return CryptographicOperations.FixedTimeEquals(
+                hashBytes.AsSpan(16, 32),
+                computedHash.AsSpan());
         }
     }
 }

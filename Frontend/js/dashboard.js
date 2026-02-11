@@ -12,7 +12,7 @@ async function initializeDashboard() {
         // Set welcome message
         const user = Auth.getUser();
         if (user) {
-            document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.firstName} ${user.lastName}`;
+            document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.firstName || ''} ${user.lastName || user.username || ''}`;
         }
         
         // Set current week
@@ -68,8 +68,19 @@ async function loadProjects() {
             // Add click handlers
             projectsGrid.querySelectorAll('.project-card').forEach(card => {
                 card.addEventListener('click', () => {
-                    const projectId = card.dataset.projectId;
-                    window.location.href = `pages/project-detail.html?id=${projectId}`;
+                    const projectId = parseInt(card.dataset.projectId, 10);
+                    if (projectId > 0) {
+                        window.location.href = `pages/project-detail.html?id=${projectId}`;
+                    }
+                });
+            });
+            projectsGrid.querySelectorAll('.view-detail-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const projectId = parseInt(btn.dataset.projectId, 10);
+                    if (projectId > 0) {
+                        window.location.href = `pages/project-detail.html?id=${projectId}`;
+                    }
                 });
             });
         }
@@ -106,7 +117,7 @@ function createProjectCard(project) {
                     <strong>${project.departmentCount}</strong>
                 </div>
             </div>
-            <button class="btn btn-sm btn-primary btn-block" onclick="event.stopPropagation(); window.location.href='pages/project-detail.html?id=${project.projectId}'">
+            <button class="btn btn-sm btn-primary btn-block view-detail-btn" data-project-id="${parseInt(project.projectId, 10)}">
                 View Details
             </button>
         </div>
