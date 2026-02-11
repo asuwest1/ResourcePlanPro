@@ -1,0 +1,124 @@
+# CLAUDE.md
+
+## Project Overview
+
+ResourcePlan Pro is an enterprise labor resource planning system for project managers to allocate labor resources across projects, departments, and employees. It features 12-week forward-looking capacity planning, real-time conflict detection, and dashboard analytics.
+
+## Tech Stack
+
+- **Backend:** .NET 6.0 / ASP.NET Core Web API, Entity Framework Core 6.0
+- **Frontend:** Vanilla HTML5/CSS3/JavaScript (ES6+) — no framework, no build step
+- **Database:** SQL Server 2019
+- **Auth:** JWT Bearer tokens with role-based access control
+- **Deployment:** Windows Server 2019 / IIS 10
+
+## Project Structure
+
+```
+Backend/           .NET 6.0 Web API
+  Controllers/     8 controllers (Auth, Projects, Resources, Employees, Departments, Dashboard, Health)
+  Services/        Business logic (AuthService, ProjectService, ResourceService, EmployeeService, DashboardEmployeeServices)
+  Models/          Entities.cs (8 entities), DTOs.cs (25+ DTOs)
+  Data/            EF Core DbContext
+  Middleware/      Global error handling
+  Program.cs       Application entry point
+Frontend/          Static HTML/CSS/JS
+  js/              10 JS modules (config, auth, api, dashboard, projects, project-detail, etc.)
+  pages/           7 HTML pages
+  css/styles.css   All styles (~1500 lines)
+  login.html       Login page
+  index.html       Dashboard
+Database/          SQL Server scripts (run in order: 01_Create, 02_SampleData, 03_ViewsAndProcs)
+Scripts/           PowerShell/Batch deployment and dev scripts
+Documentation/     README, INSTALL, DEPLOYMENT, QUICKSTART, CHANGELOG, etc.
+```
+
+## Build & Run
+
+### Backend
+
+```bash
+cd Backend
+dotnet restore
+dotnet build
+dotnet run
+# Runs on https://localhost:7001
+# Swagger UI available at /swagger (development only)
+```
+
+### Frontend
+
+```bash
+cd Frontend
+python -m http.server 8080
+# OR: npx http-server -p 8080
+# Accessible at http://localhost:8080
+```
+
+### Database Setup
+
+```bash
+sqlcmd -S localhost -i Database/01_CreateDatabase.sql
+sqlcmd -S localhost -d ResourcePlanPro -i Database/02_SampleData.sql
+sqlcmd -S localhost -d ResourcePlanPro -i Database/03_ViewsAndProcedures.sql
+```
+
+## Testing
+
+There is no automated test suite (no xUnit, NUnit, or Jest). Testing is manual:
+
+- **Swagger UI:** `/swagger` endpoint for API testing in development
+- **PowerShell script:** `Scripts/Test-API.ps1` for API endpoint testing
+- **Sample data:** 150+ records loaded via `Database/02_SampleData.sql`
+- **Demo credentials:** `jsmith` / `Password123!` (Admin), also `mchen`, `sjohnson`, `erodriguez`, `dkim` (all `Password123!`)
+
+## Linting & Formatting
+
+No explicit linting or formatting tools are configured (no ESLint, Prettier, EditorConfig, or StyleCop).
+
+## Code Conventions
+
+### C# (Backend)
+
+- Namespace: `ResourcePlanPro.API.*`
+- PascalCase for classes/methods, camelCase for parameters/locals
+- Layered architecture: Controllers → Services → Data (DbContext)
+- All data access is async/await with EF Core
+- Dependency injection via built-in ASP.NET Core DI (`AddScoped`)
+- Global error handling middleware catches exceptions and returns structured error responses
+- `[Authorize]` attribute on protected endpoints; roles: Admin, ProjectManager, DepartmentManager, Viewer
+
+### JavaScript (Frontend)
+
+- Module/object pattern (e.g., `const Auth = { ... }`, `const API = { ... }`)
+- camelCase for variables/functions
+- Fetch API for HTTP calls with JWT token in Authorization header
+- State stored in LocalStorage (token, user) and in-memory per page
+- Toast notifications for user feedback (`Utils.showToast`)
+
+### CSS
+
+- CSS custom properties for theming (`--primary-color`, `--success-color`, etc.)
+- Kebab-case class names (`.top-nav`, `.card-header`, `.status-green`)
+- Responsive design with media queries
+
+### SQL
+
+- PascalCase for table/column names
+- 8 tables: Users, Departments, Employees, Projects, ProjectDepartments, WeeklyLaborRequirements, EmployeeAssignments, AuditLog
+- FK constraints, cascade delete for parent-child, indexes on FKs and frequently queried columns
+
+## Configuration
+
+- **Backend config:** `Backend/appsettings.json` (dev), `Backend/appsettings.Production.json` (prod)
+- **Frontend config:** `Frontend/js/config.js` — `CONFIG.API_BASE_URL` defaults to `https://localhost:7001/api`
+- **CORS origins:** localhost ports 5000, 8080, 3000 (configured in appsettings.json)
+- **JWT:** 8-hour token expiration, secret key must be 32+ characters
+
+## Key Architectural Notes
+
+- No .gitignore file exists — consider adding one
+- Frontend has zero npm dependencies and no build pipeline
+- Backend uses EF Core with explicit eager loading (no lazy loading)
+- Database has 4 views and 4 stored procedures for analytics/reporting
+- HTTPS enforced in production; CORS configured for allowed origins
