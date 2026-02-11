@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - ResourcePlan Pro</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>ResourcePlan Pro</h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" placeholder="Search..." id="globalSearch">
+        </div>
+        <div class="nav-actions">
+            <button class="icon-button" id="notificationsBtn" title="Notifications">
+                <span class="notification-badge">3</span>
+                🔔
+            </button>
+            <div class="user-menu">
+                <button class="user-button" id="userMenuBtn">
+                    <span id="userName">User</span> ▼
+                </button>
+                <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                    <a href="#" id="profileLink">Profile</a>
+                    <a href="#" id="settingsLink">Settings</a>
+                    <hr>
+                    <a href="#" id="logoutLink">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="main-nav">
+        <a href="../index.html" class="nav-tab">Dashboard</a>
+        <a href="projects.html" class="nav-tab active">Projects</a>
+        <a href="employees.html" class="nav-tab">Employees</a>
+        <a href="departments.html" class="nav-tab">Departments</a>
+        <a href="reports.html" class="nav-tab">Reports</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Project Header -->
+        <div class="page-header">
+            <div>
+                <a href="projects.html" class="breadcrumb">← Back to Projects</a>
+                <h2 id="projectName">Loading...</h2>
+                <p class="subtitle" id="projectInfo"></p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline" id="editProjectBtn">Edit Project</button>
+                <button class="btn btn-danger" id="deleteProjectBtn">Delete</button>
+            </div>
+        </div>
+
+        <!-- Project Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="plan-hours">Plan Hours</button>
+            <button class="tab-button" data-tab="assign-resources">Assign Resources</button>
+            <button class="tab-button" data-tab="overview">Overview</button>
+        </div>
+
+        <!-- Plan Hours Tab -->
+        <div class="tab-content active" id="plan-hours-tab">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Weekly Labor Requirements</h3>
+                    <div class="header-actions">
+                        <label>
+                            <input type="checkbox" id="showHeatMap" checked> Show Heat Map
+                        </label>
+                        <button class="btn btn-primary" id="saveLaborRequirements">Save Changes</button>
+                    </div>
+                </div>
+
+                <div class="planning-grid-container">
+                    <div id="planningGrid" class="planning-grid">
+                        <div class="loading-spinner">Loading planning grid...</div>
+                    </div>
+                </div>
+
+                <div class="grid-summary">
+                    <div class="summary-item">
+                        <span>Total Project Hours:</span>
+                        <strong id="totalProjectHours">0</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Average Weekly Hours:</span>
+                        <strong id="avgWeeklyHours">0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assign Resources Tab -->
+        <div class="tab-content" id="assign-resources-tab">
+            <div class="resource-assignment-container">
+                <div class="assignment-filters">
+                    <div class="form-group">
+                        <label>Week:</label>
+                        <select id="weekSelector" class="form-control">
+                            <option value="">Select week...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Department:</label>
+                        <select id="departmentSelector" class="form-control">
+                            <option value="">Select department...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="assignment-grid">
+                    <!-- Labor Requirements Panel -->
+                    <div class="card">
+                        <h3>Labor Requirements</h3>
+                        <div id="requirementsPanel" class="requirements-panel">
+                            <p>Select a week and department to view requirements</p>
+                        </div>
+                    </div>
+
+                    <!-- Assigned Employees Panel -->
+                    <div class="card">
+                        <h3>Assigned Employees</h3>
+                        <div id="assignedPanel" class="assigned-panel">
+                            <p>No assignments yet</p>
+                        </div>
+                    </div>
+
+                    <!-- Available Employees Panel -->
+                    <div class="card">
+                        <h3>Available Employees</h3>
+                        <div class="search-box">
+                            <input type="text" id="employeeSearch" placeholder="Search employees...">
+                        </div>
+                        <div id="availablePanel" class="available-panel">
+                            <p>Select a week and department to view available employees</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Tab -->
+        <div class="tab-content" id="overview-tab">
+            <div class="dashboard-grid-2">
+                <div class="card">
+                    <h3>Project Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Project Manager:</label>
+                            <span id="projectManager">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Start Date:</label>
+                            <span id="startDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>End Date:</label>
+                            <span id="endDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Priority:</label>
+                            <span id="priority">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Status:</label>
+                            <span id="status">-</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Duration:</label>
+                            <span id="duration">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Resource Summary</h3>
+                    <div class="stats-content">
+                        <div class="stat-item">
+                            <span class="stat-label">Departments:</span>
+                            <span class="stat-value" id="deptCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Employees:</span>
+                            <span class="stat-value" id="empCount">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Hours Planned:</span>
+                            <span class="stat-value" id="totalHours">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Hours Assigned:</span>
+                            <span class="stat-value" id="assignedHours">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Departments</h3>
+                <div id="departmentsList" class="departments-list">
+                    <div class="loading-spinner">Loading departments...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Assignment Modal -->
+    <div id="assignmentModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign Employee</h3>
+                <button class="modal-close" onclick="closeAssignmentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assignmentForm">
+                    <input type="hidden" id="modalEmployeeId">
+                    <input type="hidden" id="modalWeekStart">
+                    
+                    <div class="form-group">
+                        <label>Employee:</label>
+                        <input type="text" id="modalEmployeeName" readonly class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Available Hours:</label>
+                        <input type="text" id="modalAvailableHours" readonly class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hours to Assign: *</label>
+                        <input type="number" id="modalAssignedHours" min="0" step="0.5" 
+                               class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Notes:</label>
+                        <textarea id="modalNotes" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeAssignmentModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Assign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/project-detail.js"></script>
+</body>
+</html>

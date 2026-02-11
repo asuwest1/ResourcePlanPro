@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees - ResourcePlan Pro</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>ResourcePlan Pro</h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" placeholder="Search employees..." id="employeeSearch">
+        </div>
+        <div class="nav-actions">
+            <button class="icon-button" id="notificationsBtn" title="Notifications">
+                <span class="notification-badge">3</span>
+                🔔
+            </button>
+            <div class="user-menu">
+                <button class="user-button" id="userMenuBtn">
+                    <span id="userName">User</span> ▼
+                </button>
+                <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                    <a href="#" id="profileLink">Profile</a>
+                    <a href="#" id="settingsLink">Settings</a>
+                    <hr>
+                    <a href="#" id="logoutLink">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <nav class="main-nav">
+        <a href="../index.html" class="nav-tab">Dashboard</a>
+        <a href="projects.html" class="nav-tab">Projects</a>
+        <a href="employees.html" class="nav-tab active">Employees</a>
+        <a href="departments.html" class="nav-tab">Departments</a>
+        <a href="reports.html" class="nav-tab">Reports</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h2>Employees</h2>
+                <p class="subtitle">View and manage employee information</p>
+            </div>
+        </div>
+
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Department:</label>
+                <select id="departmentFilter" class="form-control">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status:</label>
+                <select id="statusFilter" class="form-control">
+                    <option value="true" selected>Active</option>
+                    <option value="false">Inactive</option>
+                    <option value="">All</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="employeesContainer">
+            <div class="loading-spinner">Loading employees...</div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/employees.js"></script>
+</body>
+</html>

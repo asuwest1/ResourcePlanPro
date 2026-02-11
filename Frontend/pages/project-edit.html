@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Project - ResourcePlan Pro</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>ResourcePlan Pro</h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" placeholder="Search..." id="globalSearch">
+        </div>
+        <div class="nav-actions">
+            <button class="icon-button" id="notificationsBtn" title="Notifications">🔔</button>
+            <div class="user-menu">
+                <button class="user-button" id="userMenuBtn">
+                    <span id="userName">User</span> ▼
+                </button>
+                <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                    <a href="#" id="logoutLink">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <nav class="main-nav">
+        <a href="../index.html" class="nav-tab">Dashboard</a>
+        <a href="projects.html" class="nav-tab active">Projects</a>
+        <a href="employees.html" class="nav-tab">Employees</a>
+        <a href="departments.html" class="nav-tab">Departments</a>
+        <a href="reports.html" class="nav-tab">Reports</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <a href="projects.html" class="breadcrumb">← Back to Projects</a>
+                <h2 id="pageTitle">Create New Project</h2>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form id="projectForm" class="project-form">
+                <div class="card">
+                    <h3>Project Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="projectName">Project Name: *</label>
+                        <input type="text" id="projectName" name="projectName" 
+                               class="form-control" required maxlength="200">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" 
+                                  class="form-control" rows="4" maxlength="1000"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date: *</label>
+                            <input type="date" id="startDate" name="startDate" 
+                                   class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endDate">End Date: *</label>
+                            <input type="date" id="endDate" name="endDate" 
+                                   class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="priority">Priority: *</label>
+                            <select id="priority" name="priority" 
+                                    class="form-control" required>
+                                <option value="Low">Low</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="projectManagerId">Project Manager: *</label>
+                            <select id="projectManagerId" name="projectManagerId" 
+                                    class="form-control" required>
+                                <option value="">Select manager...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Departments</h3>
+                    <p class="form-help">Select the departments that will be involved in this project</p>
+                    
+                    <div id="departmentsList" class="departments-checkboxes">
+                        <div class="loading-spinner">Loading departments...</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="window.location.href='projects.html'">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span id="submitText">Create Project</span>
+                        <span id="submitSpinner" class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/project-form.js"></script>
+</body>
+</html>

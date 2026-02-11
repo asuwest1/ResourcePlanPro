@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - ResourcePlan Pro</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>ResourcePlan Pro</h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" placeholder="Search projects..." id="projectSearch">
+        </div>
+        <div class="nav-actions">
+            <button class="icon-button" id="notificationsBtn" title="Notifications">
+                <span class="notification-badge">3</span>
+                🔔
+            </button>
+            <div class="user-menu">
+                <button class="user-button" id="userMenuBtn">
+                    <span id="userName">User</span> ▼
+                </button>
+                <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                    <a href="#" id="profileLink">Profile</a>
+                    <a href="#" id="settingsLink">Settings</a>
+                    <hr>
+                    <a href="#" id="logoutLink">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <nav class="main-nav">
+        <a href="../index.html" class="nav-tab">Dashboard</a>
+        <a href="projects.html" class="nav-tab active">Projects</a>
+        <a href="employees.html" class="nav-tab">Employees</a>
+        <a href="departments.html" class="nav-tab">Departments</a>
+        <a href="reports.html" class="nav-tab">Reports</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h2>Projects</h2>
+                <p class="subtitle">Manage and track all projects</p>
+            </div>
+            <button class="btn btn-primary" onclick="window.location.href='project-create.html'">
+                + New Project
+            </button>
+        </div>
+
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Status:</label>
+                <select id="statusFilter" class="form-control">
+                    <option value="">All</option>
+                    <option value="Active" selected>Active</option>
+                    <option value="Planning">Planning</option>
+                    <option value="OnHold">On Hold</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Priority:</label>
+                <select id="priorityFilter" class="form-control">
+                    <option value="">All</option>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>View:</label>
+                <select id="viewFilter" class="form-control">
+                    <option value="all">All Projects</option>
+                    <option value="mine">My Projects</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="projectsContainer">
+            <div class="loading-spinner">Loading projects...</div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/projects.js"></script>
+</body>
+</html>

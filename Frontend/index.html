@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ResourcePlan Pro</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>ResourcePlan Pro</h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" placeholder="Search..." id="globalSearch">
+        </div>
+        <div class="nav-actions">
+            <button class="icon-button" id="notificationsBtn" title="Notifications">
+                <span class="notification-badge">3</span>
+                🔔
+            </button>
+            <div class="user-menu">
+                <button class="user-button" id="userMenuBtn">
+                    <span id="userName">User</span> ▼
+                </button>
+                <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                    <a href="#" id="profileLink">Profile</a>
+                    <a href="#" id="settingsLink">Settings</a>
+                    <hr>
+                    <a href="#" id="logoutLink">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="main-nav">
+        <a href="index.html" class="nav-tab active">Dashboard</a>
+        <a href="pages/projects.html" class="nav-tab">Projects</a>
+        <a href="pages/employees.html" class="nav-tab">Employees</a>
+        <a href="pages/departments.html" class="nav-tab">Departments</a>
+        <a href="pages/reports.html" class="nav-tab">Reports</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Welcome Section -->
+        <div class="dashboard-header">
+            <div>
+                <h2 id="welcomeMessage">Welcome back, User</h2>
+                <p class="subtitle" id="currentWeek"></p>
+            </div>
+        </div>
+
+        <!-- Alert Boxes -->
+        <div class="dashboard-grid-2">
+            <div class="card alert-card warning">
+                <h3>Resource Conflicts</h3>
+                <div class="alert-content">
+                    <div class="alert-item">
+                        <span class="alert-icon">⚠</span>
+                        <span id="overallocatedCount">0</span> Over-allocated employees
+                    </div>
+                    <div class="alert-item">
+                        <span class="alert-icon">⚠</span>
+                        <span id="understaffedCount">0</span> Understaffed projects
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="window.location.href='pages/conflicts.html'">
+                    View All Conflicts
+                </button>
+            </div>
+
+            <div class="card stats-card">
+                <h3>Quick Stats</h3>
+                <div class="stats-content">
+                    <div class="stat-item">
+                        <span class="stat-label">Active Projects:</span>
+                        <span class="stat-value" id="activeProjects">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Employees:</span>
+                        <span class="stat-value" id="totalEmployees">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Utilization:</span>
+                        <span class="stat-value" id="avgUtilization">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Active Projects -->
+        <div class="section-header">
+            <h2>My Active Projects</h2>
+            <button class="btn btn-primary" onclick="window.location.href='pages/project-create.html'">
+                + New Project
+            </button>
+        </div>
+
+        <div id="projectsGrid" class="projects-grid">
+            <div class="loading-spinner">Loading projects...</div>
+        </div>
+
+        <!-- Resource Timeline -->
+        <div class="section-header">
+            <h2>Resource Timeline - Next 12 Weeks</h2>
+        </div>
+
+        <div class="card">
+            <div class="timeline-legend">
+                <span><span class="legend-box light"></span> Light (0-60%)</span>
+                <span><span class="legend-box medium"></span> Medium (61-85%)</span>
+                <span><span class="legend-box heavy"></span> Heavy (86-100%+)</span>
+            </div>
+            <div id="resourceTimeline" class="resource-timeline">
+                <div class="loading-spinner">Loading timeline...</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

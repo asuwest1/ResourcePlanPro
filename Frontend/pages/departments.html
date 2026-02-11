@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departments - ResourcePlan Pro</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>ResourcePlan Pro</h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" placeholder="Search..." id="globalSearch">
+        </div>
+        <div class="nav-actions">
+            <button class="icon-button" id="notificationsBtn" title="Notifications">🔔</button>
+            <div class="user-menu">
+                <button class="user-button" id="userMenuBtn">
+                    <span id="userName">User</span> ▼
+                </button>
+                <div class="dropdown-menu" id="userDropdown" style="display: none;">
+                    <a href="#" id="logoutLink">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <nav class="main-nav">
+        <a href="../index.html" class="nav-tab">Dashboard</a>
+        <a href="projects.html" class="nav-tab">Projects</a>
+        <a href="employees.html" class="nav-tab">Employees</a>
+        <a href="departments.html" class="nav-tab active">Departments</a>
+        <a href="reports.html" class="nav-tab">Reports</a>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h2>Departments</h2>
+                <p class="subtitle">Organizational departments and resource capacity</p>
+            </div>
+        </div>
+
+        <div id="departmentsContainer">
+            <div class="loading-spinner">Loading departments...</div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Auth.init();
+            loadDepartments();
+        });
+
+        async function loadDepartments() {
+            const container = document.getElementById('departmentsContainer');
+            try {
+                const [empResponse, timelineResponse] = await Promise.all([
+                    API.employees.getAll(),
+                    API.resources.getTimeline()
+                ]);
+
+                if (empResponse.success && timelineResponse.success) {
+                    const employees = empResponse.data;
+                    const timeline = timelineResponse.data;
+                    
+                    // Group employees by department
+                    const deptGroups = {};
+                    employees.forEach(emp => {
+                        if (!deptGroups[emp.departmentName]) {
+                            deptGroups[emp.departmentName] = [];
+                        }
+                        deptGroups[emp.departmentName].push(emp);
+                    });
+
+                    let html = '<div class="departments-grid">';
+                    Object.keys(deptGroups).sort().forEach(deptName => {
+                        const emps = deptGroups[deptName];
+                        const totalCapacity = emps.reduce((sum, e) => sum + e.hoursPerWeek, 0);
+                        
+                        // Get current week utilization
+                        const currentWeekData = timeline.find(t => 
+                            t.departmentName === deptName && t.weekNumber === 0
+                        );
+                        const utilization = currentWeekData ? currentWeekData.utilizationPercentage : 0;
+                        
+                        html += `
+                            <div class="card department-card">
+                                <h3>${deptName}</h3>
+                                <div class="dept-stats">
+                                    <div class="stat-item">
+                                        <label>Employees:</label>
+                                        <strong>${emps.length}</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <label>Total Capacity:</label>
+                                        <strong>${totalCapacity} hrs/week</strong>
+                                    </div>
+                                    <div class="stat-item">
+                                        <label>Current Utilization:</label>
+                                        <strong>${utilization.toFixed(0)}%</strong>
+                                    </div>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${Math.min(utilization, 100)}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+                container.innerHTML = '<p>Error loading departments</p>';
+            }
+        }
+    </script>
+</body>
+</html>
