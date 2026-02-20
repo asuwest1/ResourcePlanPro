@@ -112,7 +112,7 @@ namespace ResourcePlanPro.API.Services
                 {
                     log.Status = "Queued";
                     log.ErrorMessage = $"Email delivery deferred: {ex.Message}. Notification logged for retry.";
-                    _logger.LogWarning(ex, "Email delivery deferred for {Email}, notification queued", email);
+                    _logger.LogWarning("Email delivery deferred, notification queued for recipient index {Index}", recipientEmails.IndexOf(email));
                 }
 
                 _context.NotificationLogs.Add(log);
@@ -214,7 +214,7 @@ namespace ResourcePlanPro.API.Services
             // Basic email format validation
             if (string.IsNullOrWhiteSpace(to) || !to.Contains('@') || to.Contains('\n') || to.Contains('\r'))
             {
-                throw new ArgumentException($"Invalid email address: {to}");
+                throw new ArgumentException("Invalid email address format");
             }
 
             var smtpHost = _configuration["SmtpSettings:Host"];
@@ -225,7 +225,7 @@ namespace ResourcePlanPro.API.Services
 
             if (string.IsNullOrEmpty(smtpHost))
             {
-                _logger.LogInformation("SMTP not configured. Email to {To} queued: {Subject}", to, subject);
+                _logger.LogInformation("SMTP not configured. Email notification queued for delivery");
                 throw new InvalidOperationException("SMTP server not configured. Notification has been logged and queued for delivery when SMTP is configured.");
             }
 
