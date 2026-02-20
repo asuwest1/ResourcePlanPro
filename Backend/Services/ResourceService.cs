@@ -197,18 +197,6 @@ namespace ResourcePlanPro.API.Services
 
         public async Task<EmployeeAssignment> CreateAssignmentAsync(CreateAssignmentRequest request)
         {
-            // Check if assignment already exists
-            var existing = await _context.EmployeeAssignments
-                .FirstOrDefaultAsync(a => 
-                    a.ProjectId == request.ProjectId && 
-                    a.EmployeeId == request.EmployeeId && 
-                    a.WeekStartDate == request.WeekStartDate);
-
-            if (existing != null)
-            {
-                throw new InvalidOperationException("Assignment already exists for this employee, project, and week");
-            }
-
             var assignment = new EmployeeAssignment
             {
                 ProjectId = request.ProjectId,
@@ -221,7 +209,17 @@ namespace ResourcePlanPro.API.Services
             };
 
             _context.EmployeeAssignments.Add(assignment);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // Unique constraint violation — duplicate assignment for this employee/project/week
+                throw new InvalidOperationException("Assignment already exists for this employee, project, and week");
+            }
+
             return assignment;
         }
 
@@ -279,38 +277,50 @@ namespace ResourcePlanPro.API.Services
         {
             int created = 0;
 
-            foreach (var item in request.Assignments)
-            {
-                var existing = await _context.EmployeeAssignments
-                    .FirstOrDefaultAsync(a =>
-                        a.ProjectId == request.ProjectId &&
-                        a.EmployeeId == item.EmployeeId &&
-                        a.WeekStartDate == request.WeekStartDate);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-                if (existing != null)
+            try
+            {
+                foreach (var item in request.Assignments)
                 {
-                    // Update existing assignment
-                    existing.AssignedHours = item.AssignedHours;
-                    existing.Notes = item.Notes;
-                    existing.ModifiedDate = DateTime.UtcNow;
-                }
-                else
-                {
-                    _context.EmployeeAssignments.Add(new EmployeeAssignment
+                    var existing = await _context.EmployeeAssignments
+                        .FirstOrDefaultAsync(a =>
+                            a.ProjectId == request.ProjectId &&
+                            a.EmployeeId == item.EmployeeId &&
+                            a.WeekStartDate == request.WeekStartDate);
+
+                    if (existing != null)
                     {
-                        ProjectId = request.ProjectId,
-                        EmployeeId = item.EmployeeId,
-                        WeekStartDate = request.WeekStartDate,
-                        AssignedHours = item.AssignedHours,
-                        Notes = item.Notes,
-                        CreatedDate = DateTime.UtcNow,
-                        ModifiedDate = DateTime.UtcNow
-                    });
-                    created++;
+                        // Update existing assignment
+                        existing.AssignedHours = item.AssignedHours;
+                        existing.Notes = item.Notes;
+                        existing.ModifiedDate = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        _context.EmployeeAssignments.Add(new EmployeeAssignment
+                        {
+                            ProjectId = request.ProjectId,
+                            EmployeeId = item.EmployeeId,
+                            WeekStartDate = request.WeekStartDate,
+                            AssignedHours = item.AssignedHours,
+                            Notes = item.Notes,
+                            CreatedDate = DateTime.UtcNow,
+                            ModifiedDate = DateTime.UtcNow
+                        });
+                        created++;
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
             }
 
-            await _context.SaveChangesAsync();
             return created;
         }
 

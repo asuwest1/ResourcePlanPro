@@ -120,12 +120,19 @@ function renderConflicts() {
                     </div>
                 </div>
                 <div class="conflict-actions">
-                    <button class="btn btn-sm btn-outline" onclick="viewConflictDetails('${conflict.conflictType}', ${conflict.entityId})">View Details</button>
+                    <button class="btn btn-sm btn-outline view-conflict-btn" data-type="${escapeHtml(conflict.conflictType)}" data-id="${parseInt(conflict.entityId, 10)}">View Details</button>
                 </div>
             </div>`;
     });
     html += '</div>';
     container.innerHTML = html;
+
+    // Bind view-conflict buttons via addEventListener (avoid inline onclick)
+    container.querySelectorAll('.view-conflict-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            viewConflictDetails(btn.dataset.type, parseInt(btn.dataset.id, 10));
+        });
+    });
 }
 
 function initializeFilters() {

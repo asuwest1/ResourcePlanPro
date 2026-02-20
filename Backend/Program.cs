@@ -44,7 +44,8 @@ builder.Services.AddAuthentication(options =>
 
 // Configure CORS
 var corsSettings = builder.Configuration.GetSection("CorsSettings");
-var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "*" };
+var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>()
+    ?? throw new InvalidOperationException("CorsSettings:AllowedOrigins not configured");
 
 builder.Services.AddCors(options =>
 {
@@ -63,10 +64,6 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IResourceService, ResourceService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<EmployeeService>();
-builder.Services.AddScoped<ProjectService>();
-builder.Services.AddScoped<ResourceService>();
-builder.Services.AddScoped<DashboardService>();
 
 // v1.1.0 services
 builder.Services.AddScoped<INotificationService, NotificationService>();

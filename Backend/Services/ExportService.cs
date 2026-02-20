@@ -191,6 +191,13 @@ namespace ResourcePlanPro.API.Services
 
         private static string EscapeCsv(string field)
         {
+            if (string.IsNullOrEmpty(field))
+                return field ?? string.Empty;
+
+            // Prevent CSV formula injection: defang fields starting with formula-trigger characters
+            if ("=+-@\t\r".Contains(field[0]))
+                field = "'" + field;
+
             if (field.Contains(',') || field.Contains('"') || field.Contains('\n'))
             {
                 return $"\"{field.Replace("\"", "\"\"")}\"";

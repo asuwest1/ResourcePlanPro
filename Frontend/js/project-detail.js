@@ -799,6 +799,13 @@ async function showSkillMatching() {
                 filterSkillMatches();
             });
         });
+
+        // Bind quick-assign buttons via addEventListener (avoid inline onclick)
+        document.querySelectorAll('.quick-assign-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                quickAssign(parseInt(btn.dataset.empId, 10), btn.dataset.empName);
+            });
+        });
     } catch (error) {
         Utils.showToast('Error loading skill matches', 'error');
     }
@@ -824,7 +831,7 @@ function renderSkillMatchResults(matches) {
             <td>${skillTags}</td>
             <td style="color: ${matchColor}; font-weight: bold;">${m.matchPercentage.toFixed(0)}%</td>
             <td>${m.availableHours.toFixed(1)}h</td>
-            <td><button class="btn btn-sm btn-primary" onclick="quickAssign(${m.employeeId}, '${escapeHtml(m.employeeName)}')">Assign</button></td>
+            <td><button class="btn btn-sm btn-primary quick-assign-btn" data-emp-id="${m.employeeId}" data-emp-name="${escapeHtml(m.employeeName)}">Assign</button></td>
         </tr>`;
     });
 
@@ -848,6 +855,12 @@ async function filterSkillMatches() {
         if (response.success) {
             document.getElementById('skillMatchResults').innerHTML =
                 renderSkillMatchResults(response.data);
+            // Re-bind quick-assign buttons after re-render
+            document.querySelectorAll('.quick-assign-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    quickAssign(parseInt(btn.dataset.empId, 10), btn.dataset.empName);
+                });
+            });
         }
     } catch (error) {
         console.error('Error filtering skill matches:', error);
