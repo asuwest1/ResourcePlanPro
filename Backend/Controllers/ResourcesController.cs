@@ -12,15 +12,18 @@ namespace ResourcePlanPro.API.Controllers
     {
         private readonly IResourceService _resourceService;
         private readonly IEmployeeService _employeeService;
+        private readonly ISkillMatchingService _skillMatchingService;
         private readonly ILogger<ResourcesController> _logger;
 
         public ResourcesController(
             IResourceService resourceService,
             IEmployeeService employeeService,
+            ISkillMatchingService skillMatchingService,
             ILogger<ResourcesController> logger)
         {
             _resourceService = resourceService;
             _employeeService = employeeService;
+            _skillMatchingService = skillMatchingService;
             _logger = logger;
         }
 
@@ -342,6 +345,122 @@ namespace ResourcePlanPro.API.Controllers
                 {
                     Success = false,
                     Message = "An error occurred while retrieving the resource timeline"
+                });
+            }
+        }
+
+        // Bulk Assignment
+        [HttpPost("assignments/bulk")]
+        public async Task<ActionResult<ApiResponse<int>>> BulkCreateAssignments(
+            [FromBody] BulkEmployeeAssignmentRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<int>
+                    {
+                        Success = false,
+                        Message = "Invalid assignment data",
+                        Errors = ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                            .ToList()
+                    });
+                }
+
+                var created = await _resourceService.BulkCreateAssignmentsAsync(request);
+                return Ok(new ApiResponse<int>
+                {
+                    Success = true,
+                    Message = $"{request.Assignments.Count} assignment(s) processed ({created} new)",
+                    Data = created
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error bulk creating assignments");
+                return StatusCode(500, new ApiResponse<int>
+                {
+                    Success = false,
+                    Message = "An error occurred while creating assignments"
+                });
+            }
+        }
+
+        // Calendar Events
+        [HttpGet("calendar")]
+        public async Task<ActionResult<ApiResponse<List<CalendarEventDto>>>> GetCalendarEvents(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate,
+            [FromQuery] int? departmentId = null,
+            [FromQuery] int? employeeId = null)
+        {
+            try
+            {
+                var events = await _resourceService.GetCalendarEventsAsync(
+                    startDate, endDate, departmentId, employeeId);
+                return Ok(new ApiResponse<List<CalendarEventDto>>
+                {
+                    Success = true,
+                    Data = events
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving calendar events");
+                return StatusCode(500, new ApiResponse<List<CalendarEventDto>>
+                {
+                    Success = false,
+                    Message = "An error occurred while retrieving calendar events"
+                });
+            }
+        }
+
+        // Skills-Based Matching
+        [HttpPost("skill-match")]
+        public async Task<ActionResult<ApiResponse<List<SkillMatchResultDto>>>> FindSkillMatches(
+            [FromBody] SkillMatchRequest request)
+        {
+            try
+            {
+                var matches = await _skillMatchingService.FindMatchingEmployeesAsync(request);
+                return Ok(new ApiResponse<List<SkillMatchResultDto>>
+                {
+                    Success = true,
+                    Data = matches
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error finding skill matches");
+                return StatusCode(500, new ApiResponse<List<SkillMatchResultDto>>
+                {
+                    Success = false,
+                    Message = "An error occurred while finding skill matches"
+                });
+            }
+        }
+
+        [HttpGet("skills")]
+        public async Task<ActionResult<ApiResponse<List<string>>>> GetAllSkills()
+        {
+            try
+            {
+                var skills = await _skillMatchingService.GetAllSkillsAsync();
+                return Ok(new ApiResponse<List<string>>
+                {
+                    Success = true,
+                    Data = skills
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving skills");
+                return StatusCode(500, new ApiResponse<List<string>>
+                {
+                    Success = false,
+                    Message = "An error occurred while retrieving skills"
                 });
             }
         }

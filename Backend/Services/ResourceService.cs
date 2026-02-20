@@ -21,6 +21,8 @@ namespace ResourcePlanPro.API.Services
         Task<EmployeeAssignment> UpdateAssignmentAsync(int assignmentId, CreateAssignmentRequest request);
         Task<bool> DeleteAssignmentAsync(int assignmentId);
         Task<List<TimelineDto>> GetResourceTimelineAsync(DateTime? startDate = null, int weekCount = 12);
+        Task<int> BulkCreateAssignmentsAsync(BulkEmployeeAssignmentRequest request);
+        Task<List<CalendarEventDto>> GetCalendarEventsAsync(DateTime startDate, DateTime endDate, int? departmentId = null, int? employeeId = null);
     }
 
     public class ResourceService : IResourceService
@@ -271,6 +273,97 @@ namespace ResourcePlanPro.API.Services
                 UtilizationPercentage = t.UtilizationPercentage,
                 LoadLevel = t.LoadLevel
             }).ToList();
+        }
+
+        public async Task<int> BulkCreateAssignmentsAsync(BulkEmployeeAssignmentRequest request)
+        {
+            int created = 0;
+
+            foreach (var item in request.Assignments)
+            {
+                var existing = await _context.EmployeeAssignments
+                    .FirstOrDefaultAsync(a =>
+                        a.ProjectId == request.ProjectId &&
+                        a.EmployeeId == item.EmployeeId &&
+                        a.WeekStartDate == request.WeekStartDate);
+
+                if (existing != null)
+                {
+                    // Update existing assignment
+                    existing.AssignedHours = item.AssignedHours;
+                    existing.Notes = item.Notes;
+                    existing.ModifiedDate = DateTime.UtcNow;
+                }
+                else
+                {
+                    _context.EmployeeAssignments.Add(new EmployeeAssignment
+                    {
+                        ProjectId = request.ProjectId,
+                        EmployeeId = item.EmployeeId,
+                        WeekStartDate = request.WeekStartDate,
+                        AssignedHours = item.AssignedHours,
+                        Notes = item.Notes,
+                        CreatedDate = DateTime.UtcNow,
+                        ModifiedDate = DateTime.UtcNow
+                    });
+                    created++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return created;
+        }
+
+        public async Task<List<CalendarEventDto>> GetCalendarEventsAsync(
+            DateTime startDate, DateTime endDate, int? departmentId = null, int? employeeId = null)
+        {
+            var query = _context.EmployeeAssignments
+                .Include(a => a.Project)
+                .Include(a => a.Employee)
+                    .ThenInclude(e => e.Department)
+                .Where(a => a.WeekStartDate >= startDate && a.WeekStartDate <= endDate);
+
+            if (departmentId.HasValue)
+                query = query.Where(a => a.Employee.DepartmentId == departmentId.Value);
+
+            if (employeeId.HasValue)
+                query = query.Where(a => a.EmployeeId == employeeId.Value);
+
+            var assignments = await query.ToListAsync();
+
+            // Group by employee and week to calculate totals
+            var employeeWeekTotals = assignments
+                .GroupBy(a => new { a.EmployeeId, a.WeekStartDate })
+                .ToDictionary(
+                    g => (g.Key.EmployeeId, g.Key.WeekStartDate),
+                    g => g.Sum(a => a.AssignedHours));
+
+            return assignments.Select(a =>
+            {
+                var totalWeekHours = employeeWeekTotals.GetValueOrDefault(
+                    (a.EmployeeId, a.WeekStartDate), a.AssignedHours);
+
+                return new CalendarEventDto
+                {
+                    AssignmentId = a.AssignmentId,
+                    ProjectId = a.ProjectId,
+                    ProjectName = a.Project.ProjectName,
+                    Priority = a.Project.Priority,
+                    EmployeeId = a.EmployeeId,
+                    EmployeeName = $"{a.Employee.FirstName} {a.Employee.LastName}",
+                    DepartmentName = a.Employee.Department.DepartmentName,
+                    WeekStartDate = a.WeekStartDate,
+                    AssignedHours = a.AssignedHours,
+                    TotalWeekHours = totalWeekHours,
+                    Capacity = a.Employee.HoursPerWeek,
+                    UtilizationPercentage = a.Employee.HoursPerWeek > 0
+                        ? Math.Round(totalWeekHours / a.Employee.HoursPerWeek * 100, 1)
+                        : 0
+                };
+            })
+            .OrderBy(e => e.WeekStartDate)
+            .ThenBy(e => e.EmployeeName)
+            .ToList();
         }
 
         // Helper classes for stored procedure results

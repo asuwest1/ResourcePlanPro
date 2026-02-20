@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadProjects();
     initializeFilters();
     initializeSearch();
+    initializeExport();
 });
 
 async function loadProjects() {
@@ -125,6 +126,20 @@ function viewProject(projectId) {
 
 function editProject(projectId) {
     window.location.href = `project-edit.html?id=${projectId}`;
+}
+
+function initializeExport() {
+    const btn = document.getElementById('btnExportProjects');
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            try {
+                await API.exports.download(API.exports.getProjectsUrl(), 'projects.csv');
+                Utils.showToast('Projects exported successfully', 'success');
+            } catch (error) {
+                Utils.showToast('Error exporting projects', 'error');
+            }
+        });
+    }
 }
 
 function escapeHtml(text) {

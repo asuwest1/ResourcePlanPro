@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadEmployees();
     initializeFilters();
     initializeSearch();
+    initializeExport();
 });
 
 async function loadEmployees() {
@@ -114,6 +115,20 @@ function applyFilters() {
     });
     
     renderEmployees();
+}
+
+function initializeExport() {
+    const btn = document.getElementById('btnExportEmployees');
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            try {
+                await API.exports.download(API.exports.getEmployeesUrl(), 'employees.csv');
+                Utils.showToast('Employees exported successfully', 'success');
+            } catch (error) {
+                Utils.showToast('Error exporting employees', 'error');
+            }
+        });
+    }
 }
 
 function escapeHtml(text) {

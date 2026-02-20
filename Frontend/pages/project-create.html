@@ -33,14 +33,32 @@
         <a href="employees.html" class="nav-tab">Employees</a>
         <a href="departments.html" class="nav-tab">Departments</a>
         <a href="reports.html" class="nav-tab">Reports</a>
+        <a href="calendar.html" class="nav-tab">Calendar</a>
     </nav>
 
     <main class="main-content">
         <div class="page-header">
             <div>
-                <a href="projects.html" class="breadcrumb">← Back to Projects</a>
+                <a href="projects.html" class="breadcrumb">&larr; Back to Projects</a>
                 <h2 id="pageTitle">Create New Project</h2>
             </div>
+        </div>
+
+        <!-- Template Selection -->
+        <div class="card" id="templateSection">
+            <h3>Start from Template (Optional)</h3>
+            <p class="form-help">Select a template to pre-fill project details, or start from scratch</p>
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <select id="templateSelect" class="form-control">
+                        <option value="">-- Start from Scratch --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-outline" id="btnApplyTemplate">Apply Template</button>
+                </div>
+            </div>
+            <div id="templateInfo" style="display: none;" class="template-info"></div>
         </div>
 
         <div class="form-container">

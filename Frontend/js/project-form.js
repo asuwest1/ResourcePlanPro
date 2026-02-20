@@ -5,18 +5,22 @@ let currentProject = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await Auth.init();
-    
+
     // Check if edit mode
     const urlParams = new URLSearchParams(window.location.search);
     projectId = urlParams.get('id');
     isEditMode = !!projectId;
-    
+
     if (isEditMode) {
         document.getElementById('pageTitle').textContent = 'Edit Project';
         document.getElementById('submitText').textContent = 'Update Project';
+        const templateSection = document.getElementById('templateSection');
+        if (templateSection) templateSection.style.display = 'none';
         await loadProject();
+    } else {
+        await loadTemplates();
     }
-    
+
     await loadFormData();
     initializeForm();
 });
@@ -200,6 +204,67 @@ function setLoading(loading) {
         submitText.style.display = 'inline';
         submitSpinner.style.display = 'none';
     }
+}
+
+// Template Support
+async function loadTemplates() {
+    try {
+        const response = await API.templates.getAll();
+        if (response.success && response.data) {
+            const select = document.getElementById('templateSelect');
+            if (!select) return;
+            response.data.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.templateId;
+                opt.textContent = `${t.templateName} (${t.priority}, ${t.durationWeeks}wk)`;
+                opt.dataset.template = JSON.stringify(t);
+                select.appendChild(opt);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading templates:', error);
+    }
+
+    const applyBtn = document.getElementById('btnApplyTemplate');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', applyTemplate);
+    }
+}
+
+function applyTemplate() {
+    const select = document.getElementById('templateSelect');
+    const selected = select.options[select.selectedIndex];
+    if (!selected.value) return;
+
+    const template = JSON.parse(selected.dataset.template);
+    const infoDiv = document.getElementById('templateInfo');
+
+    document.getElementById('priority').value = template.priority;
+
+    if (template.description) {
+        document.getElementById('description').value = template.description;
+    }
+
+    // Set start date to today and end date based on duration
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + template.durationWeeks * 7);
+    document.getElementById('startDate').value = today.toISOString().split('T')[0];
+    document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+
+    // Check departments
+    if (template.departmentIds && template.departmentIds.length > 0) {
+        document.querySelectorAll('input[name="departments"]').forEach(cb => {
+            cb.checked = template.departmentIds.includes(parseInt(cb.value));
+        });
+    }
+
+    if (infoDiv) {
+        infoDiv.style.display = 'block';
+        infoDiv.innerHTML = `<p>Applied template: <strong>${escapeHtml(template.templateName)}</strong> - ${template.durationWeeks} weeks, ${template.priority} priority, ${template.departmentIds.length} department(s)</p>`;
+    }
+
+    Utils.showToast('Template applied successfully', 'success');
 }
 
 function escapeHtml(text) {

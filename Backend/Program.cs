@@ -59,10 +59,21 @@ builder.Services.AddCors(options =>
 
 // Register application services
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<ResourceService>();
 builder.Services.AddScoped<DashboardService>();
-builder.Services.AddScoped<EmployeeService>();
+
+// v1.1.0 services
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<IExportService, ExportService>();
+builder.Services.AddScoped<IReportingService, ReportingService>();
+builder.Services.AddScoped<ISkillMatchingService, SkillMatchingService>();
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();

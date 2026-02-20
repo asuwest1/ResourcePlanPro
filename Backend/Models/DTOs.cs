@@ -255,4 +255,217 @@ namespace ResourcePlanPro.API.Models.DTOs
         public T? Data { get; set; }
         public List<string> Errors { get; set; } = new List<string>();
     }
+
+    // v1.1.0 DTOs
+
+    // Email Notification DTOs
+    public class NotificationSettingsDto
+    {
+        public bool NotifyOnConflicts { get; set; } = true;
+        public bool NotifyOnOverallocation { get; set; } = true;
+        public bool NotifyOnUnderstaffing { get; set; } = true;
+        public List<string> RecipientEmails { get; set; } = new List<string>();
+    }
+
+    public class NotificationLogDto
+    {
+        public int NotificationId { get; set; }
+        public string NotificationType { get; set; } = string.Empty;
+        public string RecipientEmail { get; set; } = string.Empty;
+        public string Subject { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedDate { get; set; }
+        public DateTime? SentDate { get; set; }
+    }
+
+    public class SendNotificationRequest
+    {
+        public List<string> RecipientEmails { get; set; } = new List<string>();
+        public bool IncludeOverallocations { get; set; } = true;
+        public bool IncludeUnderstaffing { get; set; } = true;
+    }
+
+    // Project Template DTOs
+    public class ProjectTemplateDto
+    {
+        public int TemplateId { get; set; }
+        public string TemplateName { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string Priority { get; set; } = string.Empty;
+        public int DurationWeeks { get; set; }
+        public List<int> DepartmentIds { get; set; } = new List<int>();
+        public List<TemplateHourEntry> DefaultHours { get; set; } = new List<TemplateHourEntry>();
+        public string CreatedByName { get; set; } = string.Empty;
+        public DateTime CreatedDate { get; set; }
+    }
+
+    public class CreateTemplateRequest
+    {
+        [Required]
+        [StringLength(200)]
+        public string TemplateName { get; set; } = string.Empty;
+
+        [StringLength(1000)]
+        public string? Description { get; set; }
+
+        [Required]
+        public string Priority { get; set; } = "Medium";
+
+        [Range(1, 52)]
+        public int DurationWeeks { get; set; } = 12;
+
+        public List<int> DepartmentIds { get; set; } = new List<int>();
+        public List<TemplateHourEntry> DefaultHours { get; set; } = new List<TemplateHourEntry>();
+    }
+
+    public class TemplateHourEntry
+    {
+        public int DepartmentId { get; set; }
+        public int WeekNumber { get; set; }
+        public decimal Hours { get; set; }
+    }
+
+    public class CreateProjectFromTemplateRequest
+    {
+        [Required]
+        public int TemplateId { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string ProjectName { get; set; } = string.Empty;
+
+        [StringLength(1000)]
+        public string? Description { get; set; }
+
+        [Required]
+        public int ProjectManagerId { get; set; }
+
+        [Required]
+        public DateTime StartDate { get; set; }
+    }
+
+    // Bulk Assignment DTOs
+    public class BulkEmployeeAssignmentRequest
+    {
+        [Required]
+        public int ProjectId { get; set; }
+
+        [Required]
+        public DateTime WeekStartDate { get; set; }
+
+        [Required]
+        public List<BulkAssignmentItem> Assignments { get; set; } = new List<BulkAssignmentItem>();
+    }
+
+    public class BulkAssignmentItem
+    {
+        [Required]
+        public int EmployeeId { get; set; }
+
+        [Required]
+        [Range(0, 168)]
+        public decimal AssignedHours { get; set; }
+
+        public string? Notes { get; set; }
+    }
+
+    // Calendar View DTOs
+    public class CalendarEventDto
+    {
+        public int AssignmentId { get; set; }
+        public int ProjectId { get; set; }
+        public string ProjectName { get; set; } = string.Empty;
+        public string Priority { get; set; } = string.Empty;
+        public int EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public DateTime WeekStartDate { get; set; }
+        public decimal AssignedHours { get; set; }
+        public decimal TotalWeekHours { get; set; }
+        public decimal Capacity { get; set; }
+        public decimal UtilizationPercentage { get; set; }
+    }
+
+    // Skills-Based Matching DTOs
+    public class SkillMatchRequest
+    {
+        [Required]
+        public int ProjectId { get; set; }
+
+        public int? DepartmentId { get; set; }
+
+        [Required]
+        public DateTime WeekStartDate { get; set; }
+
+        public List<string> RequiredSkills { get; set; } = new List<string>();
+
+        [Range(0, 168)]
+        public decimal MinAvailableHours { get; set; } = 0;
+    }
+
+    public class SkillMatchResultDto
+    {
+        public int EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public string JobTitle { get; set; } = string.Empty;
+        public List<string> Skills { get; set; } = new List<string>();
+        public List<string> MatchedSkills { get; set; } = new List<string>();
+        public int MatchScore { get; set; }
+        public decimal MatchPercentage { get; set; }
+        public decimal AvailableHours { get; set; }
+        public decimal CurrentUtilization { get; set; }
+    }
+
+    // Advanced Reporting DTOs
+    public class ReportDataDto
+    {
+        public List<DepartmentUtilizationChartData> DepartmentUtilization { get; set; } = new List<DepartmentUtilizationChartData>();
+        public List<ProjectStatusChartData> ProjectStatusDistribution { get; set; } = new List<ProjectStatusChartData>();
+        public List<WeeklyTrendData> WeeklyTrends { get; set; } = new List<WeeklyTrendData>();
+        public List<EmployeeUtilizationData> TopUtilizedEmployees { get; set; } = new List<EmployeeUtilizationData>();
+        public List<SkillDemandData> SkillDemand { get; set; } = new List<SkillDemandData>();
+    }
+
+    public class DepartmentUtilizationChartData
+    {
+        public string DepartmentName { get; set; } = string.Empty;
+        public decimal TotalCapacity { get; set; }
+        public decimal AssignedHours { get; set; }
+        public decimal UtilizationPercentage { get; set; }
+        public int EmployeeCount { get; set; }
+    }
+
+    public class ProjectStatusChartData
+    {
+        public string Status { get; set; } = string.Empty;
+        public int Count { get; set; }
+    }
+
+    public class WeeklyTrendData
+    {
+        public DateTime WeekStart { get; set; }
+        public decimal TotalCapacity { get; set; }
+        public decimal TotalAssigned { get; set; }
+        public decimal UtilizationPercentage { get; set; }
+        public int ConflictCount { get; set; }
+    }
+
+    public class EmployeeUtilizationData
+    {
+        public int EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string DepartmentName { get; set; } = string.Empty;
+        public decimal HoursPerWeek { get; set; }
+        public decimal AssignedHours { get; set; }
+        public decimal UtilizationPercentage { get; set; }
+    }
+
+    public class SkillDemandData
+    {
+        public string Skill { get; set; } = string.Empty;
+        public int EmployeesWithSkill { get; set; }
+        public int ProjectsRequiring { get; set; }
+        public decimal DemandRatio { get; set; }
+    }
 }

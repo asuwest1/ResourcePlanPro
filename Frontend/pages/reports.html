@@ -33,63 +33,162 @@
         <a href="employees.html" class="nav-tab">Employees</a>
         <a href="departments.html" class="nav-tab">Departments</a>
         <a href="reports.html" class="nav-tab active">Reports</a>
+        <a href="calendar.html" class="nav-tab">Calendar</a>
     </nav>
 
     <main class="main-content">
         <div class="page-header">
             <div>
-                <h2>Resource Conflicts & Reports</h2>
-                <p class="subtitle">Identify and resolve resource allocation issues</p>
+                <h2>Reports & Analytics</h2>
+                <p class="subtitle">Comprehensive resource analytics, conflict reports, and data export</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline" id="btnExportConflicts" title="Export conflicts to CSV">Export CSV</button>
+                <button class="btn btn-primary" id="btnSendNotification" title="Send conflict email notification">Email Report</button>
             </div>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="dashboard-grid-2">
-            <div class="card alert-card">
-                <h3>Active Conflicts</h3>
-                <div class="conflict-summary">
-                    <div class="conflict-stat">
-                        <span class="conflict-count" id="overallocatedCount">0</span>
-                        <span class="conflict-label">Over-allocated Employees</span>
+        <!-- Report Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="conflicts">Conflicts</button>
+            <button class="tab-btn" data-tab="charts">Charts & Analytics</button>
+            <button class="tab-btn" data-tab="notifications">Notifications</button>
+        </div>
+
+        <!-- Conflicts Tab -->
+        <div class="tab-content active" id="tab-conflicts">
+            <!-- Summary Cards -->
+            <div class="dashboard-grid-2">
+                <div class="card alert-card">
+                    <h3>Active Conflicts</h3>
+                    <div class="conflict-summary">
+                        <div class="conflict-stat">
+                            <span class="conflict-count" id="overallocatedCount">0</span>
+                            <span class="conflict-label">Over-allocated Employees</span>
+                        </div>
+                        <div class="conflict-stat">
+                            <span class="conflict-count" id="understaffedCount">0</span>
+                            <span class="conflict-label">Understaffed Projects</span>
+                        </div>
                     </div>
-                    <div class="conflict-stat">
-                        <span class="conflict-count" id="understaffedCount">0</span>
-                        <span class="conflict-label">Understaffed Projects</span>
+                </div>
+
+                <div class="card">
+                    <h3>Priority Distribution</h3>
+                    <div id="priorityChart" class="priority-chart">
+                        <div class="loading-spinner">Loading...</div>
                     </div>
                 </div>
             </div>
 
+            <!-- Conflicts List -->
             <div class="card">
-                <h3>Priority Distribution</h3>
-                <div id="priorityChart" class="priority-chart">
+                <div class="card-header">
+                    <h3>Resource Conflicts</h3>
+                    <div class="header-actions">
+                        <select id="conflictFilter" class="form-control">
+                            <option value="">All Conflicts</option>
+                            <option value="OverallocatedEmployee">Over-allocated Employees</option>
+                            <option value="UnderstaffedProject">Understaffed Projects</option>
+                        </select>
+                        <select id="priorityFilter" class="form-control">
+                            <option value="">All Priorities</option>
+                            <option value="High">High Priority</option>
+                            <option value="Medium">Medium Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="conflictsContainer">
+                    <div class="loading-spinner">Loading conflicts...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Tab -->
+        <div class="tab-content" id="tab-charts">
+            <div class="dashboard-grid-2">
+                <div class="card">
+                    <h3>Department Utilization</h3>
+                    <canvas id="deptUtilChart" width="500" height="300"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Project Status Distribution</h3>
+                    <canvas id="projectStatusChart" width="500" height="300"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Weekly Utilization Trend</h3>
+                <canvas id="weeklyTrendChart" width="1000" height="350"></canvas>
+            </div>
+            <div class="dashboard-grid-2">
+                <div class="card">
+                    <h3>Top Utilized Employees</h3>
+                    <div id="topEmployeesContainer">
+                        <div class="loading-spinner">Loading...</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Skill Distribution</h3>
+                    <canvas id="skillDemandChart" width="500" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div class="tab-content" id="tab-notifications">
+            <div class="card">
+                <h3>Send Conflict Notification</h3>
+                <div class="form-group">
+                    <label for="notifEmails">Recipient Emails (comma separated)</label>
+                    <input type="text" id="notifEmails" class="form-control" placeholder="manager@company.com, admin@company.com">
+                </div>
+                <div class="form-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notifOverallocation" checked> Include Over-allocation Alerts
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="notifUnderstaffing" checked> Include Understaffing Alerts
+                    </label>
+                </div>
+                <button class="btn btn-primary" id="btnSendNotifForm" style="margin-top: 1rem;">Send Notification</button>
+            </div>
+            <div class="card">
+                <h3>Notification History</h3>
+                <div id="notificationHistory">
                     <div class="loading-spinner">Loading...</div>
                 </div>
             </div>
         </div>
+    </main>
 
-        <!-- Conflicts List -->
-        <div class="card">
-            <div class="card-header">
-                <h3>Resource Conflicts</h3>
-                <div class="header-actions">
-                    <select id="conflictFilter" class="form-control">
-                        <option value="">All Conflicts</option>
-                        <option value="OverallocatedEmployee">Over-allocated Employees</option>
-                        <option value="UnderstaffedProject">Understaffed Projects</option>
-                    </select>
-                    <select id="priorityFilter" class="form-control">
-                        <option value="">All Priorities</option>
-                        <option value="High">High Priority</option>
-                        <option value="Medium">Medium Priority</option>
-                        <option value="Low">Low Priority</option>
-                    </select>
+    <!-- Email Notification Modal -->
+    <div class="modal-overlay" id="notifModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Send Conflict Report via Email</h3>
+                <button class="modal-close" id="closeNotifModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalNotifEmails">Recipient Emails</label>
+                    <input type="text" id="modalNotifEmails" class="form-control" placeholder="email@company.com">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="modalIncludeOveralloc" checked> Over-allocations
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="modalIncludeUnderstaff" checked> Understaffing
+                    </label>
                 </div>
             </div>
-            <div id="conflictsContainer">
-                <div class="loading-spinner">Loading conflicts...</div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelNotifModal">Cancel</button>
+                <button class="btn btn-primary" id="confirmSendNotif">Send Report</button>
             </div>
         </div>
-    </main>
+    </div>
 
     <script src="../js/config.js"></script>
     <script src="../js/auth.js"></script>

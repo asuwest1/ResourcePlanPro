@@ -39,6 +39,7 @@
         <a href="employees.html" class="nav-tab">Employees</a>
         <a href="departments.html" class="nav-tab">Departments</a>
         <a href="reports.html" class="nav-tab">Reports</a>
+        <a href="calendar.html" class="nav-tab">Calendar</a>
     </nav>
 
     <main class="main-content">
@@ -47,9 +48,10 @@
                 <h2>Projects</h2>
                 <p class="subtitle">Manage and track all projects</p>
             </div>
-            <button class="btn btn-primary" onclick="window.location.href='project-create.html'">
-                + New Project
-            </button>
+            <div class="header-actions">
+                <button class="btn btn-outline" id="btnExportProjects">Export CSV</button>
+                <button class="btn btn-primary" onclick="window.location.href='project-create.html'">+ New Project</button>
+            </div>
         </div>
 
         <div class="filters-bar">
