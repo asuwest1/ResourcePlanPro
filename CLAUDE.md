@@ -16,21 +16,22 @@ ResourcePlan Pro is an enterprise labor resource planning system for project man
 
 ```
 Backend/           .NET 6.0 Web API
-  Controllers/     8 controllers (Auth, Projects, Resources, Employees, Departments, Dashboard, Health)
+  Controllers/     7 controllers (Auth, Projects, Resources, Employees, Departments, DashboardEmployees, Health)
   Services/        Business logic (AuthService, ProjectService, ResourceService, EmployeeService, DashboardEmployeeServices)
-  Models/          Entities.cs (8 entities), DTOs.cs (25+ DTOs)
-  Data/            EF Core DbContext
-  Middleware/      Global error handling
+  Models/          Entities.cs (8 table entities + 4 view/query models), DTOs.cs (19 DTOs)
+  Data/            EF Core DbContext (ResourcePlanProContext)
+  Middleware/      Global error handling (ErrorHandlingMiddleware)
+  Utilities/       Helper classes (DateTimeHelper, ValidationHelper, CalculationHelper, StringHelper)
   Program.cs       Application entry point
 Frontend/          Static HTML/CSS/JS
   js/              10 JS modules (config, auth, api, dashboard, projects, project-detail, etc.)
-  pages/           7 HTML pages
-  css/styles.css   All styles (~1500 lines)
+  pages/           7 HTML pages (employees, departments, project-create/detail/edit, projects, reports)
+  css/styles.css   All styles (~1450 lines)
   login.html       Login page
   index.html       Dashboard
 Database/          SQL Server scripts (run in order: 01_Create, 02_SampleData, 03_ViewsAndProcs)
-Scripts/           PowerShell/Batch deployment and dev scripts
-Documentation/     README, INSTALL, DEPLOYMENT, QUICKSTART, CHANGELOG, etc.
+*.ps1, *.bat       Root-level scripts (Deploy.ps1, Start-Dev.ps1, Test-API.ps1, Setup-Database.bat)
+*.md               Root-level docs (README, INSTALL, DEPLOYMENT, QUICKSTART, CHANGELOG, etc.)
 ```
 
 ## Build & Run
@@ -68,7 +69,7 @@ sqlcmd -S localhost -d ResourcePlanPro -i Database/03_ViewsAndProcedures.sql
 There is no automated test suite (no xUnit, NUnit, or Jest). Testing is manual:
 
 - **Swagger UI:** `/swagger` endpoint for API testing in development
-- **PowerShell script:** `Scripts/Test-API.ps1` for API endpoint testing
+- **PowerShell script:** `Test-API.ps1` (root level) for API endpoint testing
 - **Sample data:** 150+ records loaded via `Database/02_SampleData.sql`
 - **Demo credentials:** See `Database/02_SampleData.sql` or `Documentation/QUICKSTART.md` for test user accounts
 
