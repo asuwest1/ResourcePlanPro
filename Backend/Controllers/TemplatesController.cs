@@ -132,6 +132,15 @@ namespace ResourcePlanPro.API.Controllers
             [FromQuery] string templateName,
             [FromQuery] string? description = null)
         {
+            if (string.IsNullOrWhiteSpace(templateName) || templateName.Length > 200)
+            {
+                return BadRequest(new ApiResponse<ProjectTemplateDto>
+                {
+                    Success = false,
+                    Message = "Template name is required and must be 200 characters or fewer"
+                });
+            }
+
             try
             {
                 var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -139,7 +148,7 @@ namespace ResourcePlanPro.API.Controllers
                     return Unauthorized();
 
                 var template = await _templateService.CreateTemplateFromProjectAsync(
-                    projectId, templateName, description, userId);
+                    projectId, templateName.Trim(), description, userId);
 
                 return CreatedAtAction(
                     nameof(GetTemplate),

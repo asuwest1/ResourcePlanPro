@@ -271,11 +271,10 @@ async function populateDepartmentSelector() {
     const selector = document.getElementById('departmentSelector');
     
     // Get unique departments from labor requirements
-    const departments = [...new Set(laborRequirements.map(r => ({
-        id: r.departmentId,
-        name: r.departmentName
-    })))];
-    
+    const departments = [...new Map(
+        laborRequirements.map(r => [r.departmentId, { id: r.departmentId, name: r.departmentName }])
+    ).values()];
+
     let html = '<option value="">Select department...</option>';
     departments.forEach(dept => {
         html += `<option value="${dept.id}">${escapeHtml(dept.name)}</option>`;
@@ -510,8 +509,13 @@ async function submitAssignment(event) {
         }
     } catch (error) {
         console.error('Error creating assignment:', error);
-        Utils.showToast(error.message || 'Error creating assignment', 'error');
+        Utils.showToast('Error creating assignment', 'error');
     }
+}
+
+function editAssignment(assignmentId) {
+    // Edit in-place is not yet supported; inform user to delete and re-create
+    Utils.showToast('To change hours, remove the assignment and re-assign with updated hours', 'info');
 }
 
 async function deleteAssignment(assignmentId) {
@@ -655,7 +659,7 @@ async function saveAsTemplate() {
             Utils.showToast('Template created successfully', 'success');
         }
     } catch (error) {
-        Utils.showToast('Error creating template: ' + error.message, 'error');
+        Utils.showToast('Error creating template', 'error');
     }
 }
 
@@ -748,7 +752,7 @@ async function submitBulkAssignment() {
             if (typeof loadResourceAssignment === 'function') loadResourceAssignment();
         }
     } catch (error) {
-        Utils.showToast('Error creating bulk assignments: ' + error.message, 'error');
+        Utils.showToast('Error creating bulk assignments', 'error');
     }
 }
 
@@ -889,7 +893,7 @@ function quickAssign(employeeId, employeeName) {
             if (typeof loadResourceAssignment === 'function') loadResourceAssignment();
         }
     }).catch(error => {
-        Utils.showToast('Error assigning employee: ' + error.message, 'error');
+        Utils.showToast('Error assigning employee', 'error');
     });
 }
 

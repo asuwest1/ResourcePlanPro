@@ -28,11 +28,10 @@ async function loadEmployees() {
 }
 
 function populateDepartmentFilter() {
-    const departments = [...new Set(allEmployees.map(e => ({
-        id: e.departmentId,
-        name: e.departmentName
-    })))];
-    
+    const departments = [...new Map(
+        allEmployees.map(e => [e.departmentId, { id: e.departmentId, name: e.departmentName }])
+    ).values()];
+
     const select = document.getElementById('departmentFilter');
     let html = '<option value="">All Departments</option>';
     departments.forEach(dept => {
@@ -132,6 +131,7 @@ function initializeExport() {
 }
 
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;

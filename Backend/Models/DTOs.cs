@@ -70,6 +70,7 @@ namespace ResourcePlanPro.API.Models.DTOs
         public DateTime EndDate { get; set; }
 
         [Required]
+        [RegularExpression("^(Low|Medium|High|Critical)$", ErrorMessage = "Priority must be Low, Medium, High, or Critical")]
         public string Priority { get; set; } = "Medium";
 
         public List<int> DepartmentIds { get; set; } = new List<int>();
@@ -187,6 +188,7 @@ namespace ResourcePlanPro.API.Models.DTOs
         [Range(0, 168)]
         public decimal AssignedHours { get; set; }
 
+        [StringLength(500)]
         public string? Notes { get; set; }
     }
 
@@ -309,6 +311,7 @@ namespace ResourcePlanPro.API.Models.DTOs
         public string? Description { get; set; }
 
         [Required]
+        [RegularExpression("^(Low|Medium|High|Critical)$", ErrorMessage = "Priority must be Low, Medium, High, or Critical")]
         public string Priority { get; set; } = "Medium";
 
         [Range(1, 52)]
@@ -320,8 +323,13 @@ namespace ResourcePlanPro.API.Models.DTOs
 
     public class TemplateHourEntry
     {
+        [Required]
         public int DepartmentId { get; set; }
+
+        [Range(0, 52)]
         public int WeekNumber { get; set; }
+
+        [Range(0, 9999.99)]
         public decimal Hours { get; set; }
     }
 
@@ -366,6 +374,7 @@ namespace ResourcePlanPro.API.Models.DTOs
         [Range(0, 168)]
         public decimal AssignedHours { get; set; }
 
+        [StringLength(500)]
         public string? Notes { get; set; }
     }
 

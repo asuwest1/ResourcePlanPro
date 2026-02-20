@@ -2,6 +2,7 @@
 let calendarStartDate = null;
 let calendarEvents = [];
 let calendarWeekCount = 12;
+let calendarAbortController = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await Auth.init();
@@ -82,6 +83,13 @@ async function loadFilters() {
 }
 
 async function loadCalendar() {
+    // Cancel any in-flight request to prevent race conditions
+    if (calendarAbortController) {
+        calendarAbortController.abort();
+    }
+    calendarAbortController = new AbortController();
+    const signal = calendarAbortController.signal;
+
     const container = document.getElementById('calendarContainer');
     container.innerHTML = '<div class="loading-spinner">Loading calendar...</div>';
 
@@ -99,11 +107,14 @@ async function loadCalendar() {
             employeeId
         );
 
+        if (signal.aborted) return;
+
         if (response.success && response.data) {
             calendarEvents = response.data;
             renderCalendar();
         }
     } catch (error) {
+        if (signal.aborted) return;
         console.error('Error loading calendar:', error);
         container.innerHTML = '<p>Error loading calendar data</p>';
     }

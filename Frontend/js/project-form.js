@@ -2,6 +2,7 @@
 let isEditMode = false;
 let projectId = null;
 let currentProject = null;
+let projectDepartmentIds = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     await Auth.init();
@@ -31,6 +32,8 @@ async function loadProject() {
         if (response.success && response.data) {
             currentProject = response.data;
             populateForm();
+            // Load department IDs from labor requirements for checkbox pre-selection
+            await loadProjectDepartments();
         }
     } catch (error) {
         console.error('Error loading project:', error);
@@ -94,10 +97,19 @@ async function loadDepartments() {
     }
 }
 
+async function loadProjectDepartments() {
+    try {
+        const response = await API.resources.getRequirements(parseInt(projectId));
+        if (response.success && response.data) {
+            projectDepartmentIds = [...new Set(response.data.map(r => r.departmentId))];
+        }
+    } catch (e) {
+        console.error('Error loading project departments:', e);
+    }
+}
+
 function checkIfDepartmentSelected(deptId) {
-    // This would need to be loaded from the project data
-    // For now, return false
-    return false;
+    return projectDepartmentIds.includes(deptId);
 }
 
 function populateForm() {
@@ -185,7 +197,7 @@ async function handleSubmit(event) {
         }
     } catch (error) {
         console.error('Error saving project:', error);
-        Utils.showToast(error.message || 'Error saving project', 'error');
+        Utils.showToast('Error saving project', 'error');
         setLoading(false);
     }
 }
@@ -268,6 +280,7 @@ function applyTemplate() {
 }
 
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;

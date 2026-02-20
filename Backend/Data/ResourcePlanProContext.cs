@@ -138,6 +138,9 @@ namespace ResourcePlanPro.API.Data
             // v1.1.0 entity configurations
             modelBuilder.Entity<ProjectTemplate>(entity =>
             {
+                entity.HasIndex(pt => pt.TemplateName).IsUnique();
+                entity.HasIndex(pt => pt.IsActive);
+
                 entity.HasOne(pt => pt.CreatedBy)
                     .WithMany()
                     .HasForeignKey(pt => pt.CreatedByUserId)
@@ -148,6 +151,7 @@ namespace ResourcePlanPro.API.Data
             {
                 entity.HasIndex(n => n.CreatedDate);
                 entity.HasIndex(n => n.Status);
+                entity.HasIndex(n => n.RecipientEmail);
             });
         }
     }

@@ -491,7 +491,7 @@ async function sendNotification(emails, includeOverallocations, includeUnderstaf
             loadNotificationHistory();
         }
     } catch (error) {
-        Utils.showToast('Error sending notification: ' + error.message, 'error');
+        Utils.showToast('Error sending notification', 'error');
     }
 }
 

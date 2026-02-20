@@ -195,7 +195,7 @@ namespace ResourcePlanPro.API.Services
                     Skill = kv.Key,
                     EmployeesWithSkill = kv.Value,
                     ProjectsRequiring = activeProjectCount,
-                    DemandRatio = kv.Value > 0 ? Math.Round((decimal)activeProjectCount / kv.Value, 2) : 0
+                    DemandRatio = activeProjectCount > 0 ? Math.Round((decimal)kv.Value / activeProjectCount, 2) : 0
                 })
                 .ToList();
         }

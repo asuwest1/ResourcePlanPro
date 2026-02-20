@@ -402,6 +402,24 @@ namespace ResourcePlanPro.API.Controllers
             [FromQuery] int? departmentId = null,
             [FromQuery] int? employeeId = null)
         {
+            if (endDate < startDate)
+            {
+                return BadRequest(new ApiResponse<List<CalendarEventDto>>
+                {
+                    Success = false,
+                    Message = "endDate must be on or after startDate"
+                });
+            }
+
+            if ((endDate - startDate).TotalDays > 366)
+            {
+                return BadRequest(new ApiResponse<List<CalendarEventDto>>
+                {
+                    Success = false,
+                    Message = "Date range cannot exceed 1 year"
+                });
+            }
+
             try
             {
                 var events = await _resourceService.GetCalendarEventsAsync(
