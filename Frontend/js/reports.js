@@ -100,7 +100,7 @@ function renderConflicts() {
                 <div class="conflict-header">
                     <div class="conflict-icon">${icon}</div>
                     <div class="conflict-info">
-                        <h4>${escapeHtml(conflict.entityName)}</h4>
+                        <h4>${Utils.escapeHtml(conflict.entityName)}</h4>
                         <p class="conflict-type">${typeLabel}</p>
                     </div>
                     <div class="conflict-priority">
@@ -109,18 +109,18 @@ function renderConflicts() {
                 </div>
                 <div class="conflict-body">
                     <div class="conflict-details">
-                        <div class="detail-item"><label>Department:</label><span>${escapeHtml(conflict.departmentName)}</span></div>
+                        <div class="detail-item"><label>Department:</label><span>${Utils.escapeHtml(conflict.departmentName)}</span></div>
                         <div class="detail-item"><label>Week:</label><span>${Utils.formatDate(conflict.weekStartDate)}</span></div>
                         <div class="detail-item"><label>Variance:</label><span class="variance">${conflict.variance.toFixed(1)} hours</span></div>
                         <div class="detail-item"><label>Utilization:</label><span>${conflict.utilizationPercentage.toFixed(0)}%</span></div>
                     </div>
                     <div class="conflict-description">
-                        <p>${escapeHtml(conflict.description)}</p>
-                        ${conflict.affectedProjects ? `<p class="affected-projects"><strong>Projects:</strong> ${escapeHtml(conflict.affectedProjects)}</p>` : ''}
+                        <p>${Utils.escapeHtml(conflict.description)}</p>
+                        ${conflict.affectedProjects ? `<p class="affected-projects"><strong>Projects:</strong> ${Utils.escapeHtml(conflict.affectedProjects)}</p>` : ''}
                     </div>
                 </div>
                 <div class="conflict-actions">
-                    <button class="btn btn-sm btn-outline view-conflict-btn" data-type="${escapeHtml(conflict.conflictType)}" data-id="${parseInt(conflict.entityId, 10)}">View Details</button>
+                    <button class="btn btn-sm btn-outline view-conflict-btn" data-type="${Utils.escapeHtml(conflict.conflictType)}" data-id="${parseInt(conflict.entityId, 10)}">View Details</button>
                 </div>
             </div>`;
     });
@@ -386,8 +386,8 @@ function renderTopEmployees() {
         html += `
             <div class="employee-util-item">
                 <div class="employee-util-info">
-                    <span class="employee-util-name">${escapeHtml(emp.employeeName)}</span>
-                    <span class="employee-util-dept">${escapeHtml(emp.departmentName)}</span>
+                    <span class="employee-util-name">${Utils.escapeHtml(emp.employeeName)}</span>
+                    <span class="employee-util-dept">${Utils.escapeHtml(emp.departmentName)}</span>
                 </div>
                 <div class="employee-util-bar-container">
                     <div class="employee-util-bar" style="width: ${width}%; background: ${color};"></div>
@@ -510,9 +510,9 @@ async function loadNotificationHistory() {
                 const statusClass = n.status === 'Sent' ? 'status-green' : n.status === 'Queued' ? 'status-yellow' : 'status-red';
                 html += `<tr>
                     <td>${Utils.formatDate(n.createdDate)}</td>
-                    <td>${escapeHtml(n.notificationType)}</td>
-                    <td>${escapeHtml(n.recipientEmail)}</td>
-                    <td>${escapeHtml(n.subject)}</td>
+                    <td>${Utils.escapeHtml(n.notificationType)}</td>
+                    <td>${Utils.escapeHtml(n.recipientEmail)}</td>
+                    <td>${Utils.escapeHtml(n.subject)}</td>
                     <td><span class="badge ${statusClass}">${n.status}</span></td>
                 </tr>`;
             });
@@ -537,11 +537,4 @@ function initializeExport() {
             }
         });
     }
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

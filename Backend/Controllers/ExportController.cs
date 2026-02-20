@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ResourcePlanPro.API.Models.DTOs;
 using ResourcePlanPro.API.Services;
 
 namespace ResourcePlanPro.API.Controllers
@@ -29,7 +30,7 @@ namespace ResourcePlanPro.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error exporting projects");
-                return StatusCode(500, "An error occurred while exporting projects");
+                return StatusCode(500, new ApiResponse<string> { Success = false, Message = "An error occurred while exporting projects" });
             }
         }
 
@@ -44,7 +45,7 @@ namespace ResourcePlanPro.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error exporting employees");
-                return StatusCode(500, "An error occurred while exporting employees");
+                return StatusCode(500, new ApiResponse<string> { Success = false, Message = "An error occurred while exporting employees" });
             }
         }
 
@@ -62,7 +63,7 @@ namespace ResourcePlanPro.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error exporting assignments");
-                return StatusCode(500, "An error occurred while exporting assignments");
+                return StatusCode(500, new ApiResponse<string> { Success = false, Message = "An error occurred while exporting assignments" });
             }
         }
 
@@ -77,7 +78,7 @@ namespace ResourcePlanPro.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error exporting conflicts");
-                return StatusCode(500, "An error occurred while exporting conflicts");
+                return StatusCode(500, new ApiResponse<string> { Success = false, Message = "An error occurred while exporting conflicts" });
             }
         }
 
@@ -87,7 +88,7 @@ namespace ResourcePlanPro.API.Controllers
             [FromQuery] int weekCount = 12)
         {
             if (weekCount < 1 || weekCount > 52)
-                return BadRequest("weekCount must be between 1 and 52");
+                return BadRequest(new ApiResponse<string> { Success = false, Message = "weekCount must be between 1 and 52" });
 
             try
             {
@@ -97,7 +98,7 @@ namespace ResourcePlanPro.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error exporting timeline");
-                return StatusCode(500, "An error occurred while exporting timeline data");
+                return StatusCode(500, new ApiResponse<string> { Success = false, Message = "An error occurred while exporting timeline data" });
             }
         }
     }

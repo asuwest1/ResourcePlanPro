@@ -53,8 +53,8 @@ function renderProjects() {
         const statusIcon = statusClass === 'green' ? '🟢' : statusClass === 'yellow' ? '🟡' : '🔴';
         
         html += '<tr>';
-        html += `<td><a href="project-detail.html?id=${project.projectId}" class="project-link">${escapeHtml(project.projectName)}</a></td>`;
-        html += `<td>${escapeHtml(project.projectManagerName)}</td>`;
+        html += `<td><a href="project-detail.html?id=${project.projectId}" class="project-link">${Utils.escapeHtml(project.projectName)}</a></td>`;
+        html += `<td>${Utils.escapeHtml(project.projectManagerName)}</td>`;
         html += `<td><span class="badge badge-${project.status.toLowerCase()}">${project.status}</span></td>`;
         html += `<td><span class="badge badge-priority-${project.priority.toLowerCase()}">${project.priority}</span></td>`;
         html += `<td>${Utils.formatDate(project.startDate)}</td>`;
@@ -140,10 +140,4 @@ function initializeExport() {
             }
         });
     }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

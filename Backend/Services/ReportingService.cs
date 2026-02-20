@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ResourcePlanPro.API.Data;
 using ResourcePlanPro.API.Models.DTOs;
+using ResourcePlanPro.API.Utilities;
 
 namespace ResourcePlanPro.API.Services
 {
@@ -24,7 +25,7 @@ namespace ResourcePlanPro.API.Services
 
         public async Task<ReportDataDto> GetReportDataAsync(DateTime? startDate = null, int weekCount = 12)
         {
-            var weekStart = startDate ?? GetWeekStartDate(DateTime.Today);
+            var weekStart = startDate ?? DateTimeHelper.GetWeekStartDate(DateTime.Today);
 
             var report = new ReportDataDto
             {
@@ -198,13 +199,6 @@ namespace ResourcePlanPro.API.Services
                     DemandRatio = activeProjectCount > 0 ? Math.Round((decimal)kv.Value / activeProjectCount, 2) : 0
                 })
                 .ToList();
-        }
-
-        private static DateTime GetWeekStartDate(DateTime date)
-        {
-            var diff = date.DayOfWeek - DayOfWeek.Monday;
-            if (diff < 0) diff += 7;
-            return date.AddDays(-diff).Date;
         }
     }
 }

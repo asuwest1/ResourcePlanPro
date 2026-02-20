@@ -160,8 +160,8 @@ function renderCalendar() {
 
     employeeMap.forEach((empData, empId) => {
         html += `<tr>`;
-        html += `<td class="cal-employee-cell">${escapeHtml(empData.name)}</td>`;
-        html += `<td class="cal-dept-cell">${escapeHtml(empData.department)}</td>`;
+        html += `<td class="cal-employee-cell">${Utils.escapeHtml(empData.name)}</td>`;
+        html += `<td class="cal-dept-cell">${Utils.escapeHtml(empData.department)}</td>`;
 
         weeks.forEach(weekStart => {
             const weekStr = formatDate(weekStart);
@@ -181,7 +181,7 @@ function renderCalendar() {
                 else { bgColor = '#27ae60'; cellClass += ' cal-light'; }
             }
 
-            const projectNames = weekEvents.map(e => escapeHtml(e.projectName)).join(', ');
+            const projectNames = weekEvents.map(e => Utils.escapeHtml(e.projectName)).join(', ');
             const title = totalHours > 0
                 ? `${totalHours.toFixed(1)}h / ${empData.capacity}h (${utilization.toFixed(0)}%)\n${projectNames}`
                 : 'No assignments';
@@ -205,11 +205,4 @@ function renderCalendar() {
 function formatDate(date) {
     const d = new Date(date);
     return d.toISOString().split('T')[0];
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

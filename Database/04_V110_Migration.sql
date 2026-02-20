@@ -8,6 +8,9 @@
 USE ResourcePlanPro;
 GO
 
+BEGIN TRANSACTION;
+BEGIN TRY
+
 -- ============================================
 -- ProjectTemplates Table
 -- ============================================
@@ -41,7 +44,6 @@ ELSE
 BEGIN
     PRINT 'ProjectTemplates table already exists - skipping';
 END
-GO
 
 -- ============================================
 -- NotificationLogs Table
@@ -78,7 +80,6 @@ ELSE
 BEGIN
     PRINT 'NotificationLogs table already exists - skipping';
 END
-GO
 
 -- ============================================
 -- Add Skills column to Employees table (if not exists)
@@ -98,7 +99,6 @@ ELSE
 BEGIN
     PRINT 'Skills column already exists on Employees table - skipping';
 END
-GO
 
 -- ============================================
 -- Populate sample skills data for existing employees
@@ -141,7 +141,6 @@ BEGIN
 
     PRINT 'Updated sample skills data for employees';
 END
-GO
 
 -- ============================================
 -- Insert sample project templates
@@ -156,9 +155,17 @@ BEGIN
 
     PRINT 'Inserted sample project templates';
 END
-GO
+
+COMMIT TRANSACTION;
 
 PRINT '============================================';
 PRINT 'v1.1.0 Migration completed successfully';
 PRINT '============================================';
+
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+    PRINT 'v1.1.0 Migration FAILED - all changes rolled back';
+    THROW;
+END CATCH
 GO

@@ -99,7 +99,7 @@ function renderPlanningGrid() {
     
     // Add rows for each department
     departments.forEach(dept => {
-        html += `<tr><td class="dept-name">${escapeHtml(dept)}</td>`;
+        html += `<tr><td class="dept-name">${Utils.escapeHtml(dept)}</td>`;
         
         let deptTotal = 0;
         weeks.forEach(week => {
@@ -114,7 +114,7 @@ function renderPlanningGrid() {
             deptTotal += hours;
             
             html += `<td class="editable-cell ${cellClass}" 
-                        data-dept="${escapeHtml(dept)}" 
+                        data-dept="${Utils.escapeHtml(dept)}" 
                         data-week="${week}"
                         data-requirement-id="${req ? req.requirementId : 0}">
                         <input type="number" value="${hours}" min="0" step="0.5" 
@@ -277,7 +277,7 @@ async function populateDepartmentSelector() {
 
     let html = '<option value="">Select department...</option>';
     departments.forEach(dept => {
-        html += `<option value="${dept.id}">${escapeHtml(dept.name)}</option>`;
+        html += `<option value="${dept.id}">${Utils.escapeHtml(dept.name)}</option>`;
     });
     
     selector.innerHTML = html;
@@ -377,7 +377,7 @@ async function loadAssignedEmployees() {
                 html += `
                     <div class="assignment-item">
                         <div class="assignment-info">
-                            <strong>${escapeHtml(assignment.employeeName)}</strong>
+                            <strong>${Utils.escapeHtml(assignment.employeeName)}</strong>
                             <span class="assignment-hours">${parseFloat(assignment.assignedHours).toFixed(1)} hrs</span>
                         </div>
                         <div class="assignment-actions">
@@ -431,15 +431,15 @@ async function loadAvailableEmployees() {
                 html += `
                     <div class="employee-item">
                         <div class="employee-info">
-                            <strong>${escapeHtml(emp.firstName)} ${escapeHtml(emp.lastName)}</strong>
+                            <strong>${Utils.escapeHtml(emp.firstName)} ${Utils.escapeHtml(emp.lastName)}</strong>
                             <div class="employee-meta">
-                                <span>${escapeHtml(emp.jobTitle)}</span>
+                                <span>${Utils.escapeHtml(emp.jobTitle)}</span>
                                 <span>Available: ${parseFloat(emp.availableHours).toFixed(1)} hrs</span>
                             </div>
                         </div>
                         <button class="btn btn-sm btn-primary assign-emp-btn"
                                 data-emp-id="${safeId}"
-                                data-emp-name="${escapeHtml(emp.firstName)} ${escapeHtml(emp.lastName)}"
+                                data-emp-name="${Utils.escapeHtml(emp.firstName)} ${Utils.escapeHtml(emp.lastName)}"
                                 data-available="${parseFloat(emp.availableHours)}">
                             Assign
                         </button>
@@ -687,7 +687,7 @@ async function showBulkAssignmentPanel() {
         employees.forEach(emp => {
             html += `<tr>
                 <td><input type="checkbox" class="bulk-emp-cb" value="${emp.employeeId}" data-available="${emp.availableHours}"></td>
-                <td>${escapeHtml(emp.firstName + ' ' + emp.lastName)}</td>
+                <td>${Utils.escapeHtml(emp.firstName + ' ' + emp.lastName)}</td>
                 <td>${emp.availableHours.toFixed(1)}h</td>
                 <td><input type="number" class="form-control bulk-hours" data-emp="${emp.employeeId}" min="0" max="${emp.availableHours}" step="0.5" value="8" style="width: 80px;"></td>
             </tr>`;
@@ -785,7 +785,7 @@ async function showSkillMatching() {
         html += '<div class="form-group"><label>Filter by skills:</label>';
         html += '<div class="skill-tags" id="skillFilterTags">';
         allSkills.slice(0, 20).forEach(skill => {
-            html += `<button class="btn btn-sm btn-outline skill-tag" data-skill="${escapeHtml(skill)}">${escapeHtml(skill)}</button> `;
+            html += `<button class="btn btn-sm btn-outline skill-tag" data-skill="${Utils.escapeHtml(skill)}">${Utils.escapeHtml(skill)}</button> `;
         });
         html += '</div></div>';
         html += '<div id="skillMatchResults">';
@@ -826,16 +826,16 @@ function renderSkillMatchResults(matches) {
         const matchColor = m.matchPercentage >= 75 ? '#27ae60' : m.matchPercentage >= 50 ? '#f39c12' : '#e74c3c';
         const skillTags = m.skills.map(s => {
             const isMatch = m.matchedSkills.some(ms => ms.toLowerCase() === s.toLowerCase());
-            return `<span class="badge ${isMatch ? 'badge-success' : ''}">${escapeHtml(s)}</span>`;
+            return `<span class="badge ${isMatch ? 'badge-success' : ''}">${Utils.escapeHtml(s)}</span>`;
         }).join(' ');
 
         html += `<tr>
-            <td>${escapeHtml(m.employeeName)}</td>
-            <td>${escapeHtml(m.departmentName)}</td>
+            <td>${Utils.escapeHtml(m.employeeName)}</td>
+            <td>${Utils.escapeHtml(m.departmentName)}</td>
             <td>${skillTags}</td>
             <td style="color: ${matchColor}; font-weight: bold;">${m.matchPercentage.toFixed(0)}%</td>
             <td>${m.availableHours.toFixed(1)}h</td>
-            <td><button class="btn btn-sm btn-primary quick-assign-btn" data-emp-id="${m.employeeId}" data-emp-name="${escapeHtml(m.employeeName)}">Assign</button></td>
+            <td><button class="btn btn-sm btn-primary quick-assign-btn" data-emp-id="${m.employeeId}" data-emp-name="${Utils.escapeHtml(m.employeeName)}">Assign</button></td>
         </tr>`;
     });
 
@@ -895,11 +895,4 @@ function quickAssign(employeeId, employeeName) {
     }).catch(error => {
         Utils.showToast('Error assigning employee', 'error');
     });
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

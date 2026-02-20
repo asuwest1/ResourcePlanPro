@@ -100,7 +100,7 @@ function createProjectCard(project) {
     
     return `
         <div class="project-card status-${statusClass}" data-project-id="${project.projectId}">
-            <h3>${escapeHtml(project.projectName)}</h3>
+            <h3>${Utils.escapeHtml(project.projectName)}</h3>
             <div class="progress-bar">
                 <div class="progress-fill" style="width: ${progressPercent}%"></div>
             </div>
@@ -158,7 +158,7 @@ async function loadResourceTimeline() {
             
             // Add department rows
             Object.keys(departments).sort().forEach(deptName => {
-                html += `<tr><td>${escapeHtml(deptName)}</td>`;
+                html += `<tr><td>${Utils.escapeHtml(deptName)}</td>`;
                 const deptData = departments[deptName];
                 weeks.forEach(weekNum => {
                     const weekData = deptData.find(d => d.weekNumber === weekNum);
@@ -176,10 +176,4 @@ async function loadResourceTimeline() {
         console.error('Error loading resource timeline:', error);
         timelineContainer.innerHTML = '<p class="text-center">Error loading timeline</p>';
     }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

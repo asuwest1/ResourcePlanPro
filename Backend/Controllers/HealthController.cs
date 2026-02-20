@@ -20,7 +20,7 @@ namespace ResourcePlanPro.API.Controllers
             {
                 status = "healthy",
                 timestamp = DateTime.UtcNow,
-                version = "1.0.0",
+                version = "1.1.0",
                 service = "ResourcePlan Pro API"
             });
         }

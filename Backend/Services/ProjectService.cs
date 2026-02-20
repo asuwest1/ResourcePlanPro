@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using ResourcePlanPro.API.Data;
 using ResourcePlanPro.API.Models;
 using ResourcePlanPro.API.Models.DTOs;
+using ResourcePlanPro.API.Utilities;
 
 namespace ResourcePlanPro.API.Services
 {
@@ -69,7 +70,7 @@ namespace ResourcePlanPro.API.Services
             if (project == null)
                 return null;
 
-            var currentWeekStart = GetWeekStartDate(DateTime.Today);
+            var currentWeekStart = DateTimeHelper.GetWeekStartDate(DateTime.Today);
             var weekRequirements = await _context.WeeklyLaborRequirements
                 .Where(w => w.ProjectId == projectId && w.WeekStartDate == currentWeekStart)
                 .ToListAsync();
@@ -194,13 +195,6 @@ namespace ResourcePlanPro.API.Services
         public async Task<List<ProjectDto>> GetProjectsByManagerAsync(int managerId)
         {
             return await GetProjectDashboardAsync(managerId);
-        }
-
-        private DateTime GetWeekStartDate(DateTime date)
-        {
-            var diff = date.DayOfWeek - DayOfWeek.Monday;
-            if (diff < 0) diff += 7;
-            return date.AddDays(-diff).Date;
         }
 
         // Helper class for stored procedure result
