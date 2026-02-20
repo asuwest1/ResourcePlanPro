@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using ResourcePlanPro.API.Data;
 using ResourcePlanPro.API.Models;
 using ResourcePlanPro.API.Models.DTOs;
+using ResourcePlanPro.API.Utilities;
 
 namespace ResourcePlanPro.API.Services
 {
@@ -103,7 +104,7 @@ namespace ResourcePlanPro.API.Services
             var totalEmployees = await _context.Employees
                 .CountAsync(e => e.IsActive);
 
-            var currentWeekStart = GetWeekStartDate(DateTime.Today);
+            var currentWeekStart = DateTimeHelper.GetWeekStartDate(DateTime.Today);
             
             var utilization = await _context.Employees
                 .Where(e => e.IsActive)
@@ -152,13 +153,6 @@ namespace ResourcePlanPro.API.Services
                 OverallocatedEmployees = overallocated,
                 UnderstaffedProjects = understaffed
             };
-        }
-
-        private DateTime GetWeekStartDate(DateTime date)
-        {
-            var diff = date.DayOfWeek - DayOfWeek.Monday;
-            if (diff < 0) diff += 7;
-            return date.AddDays(-diff).Date;
         }
 
         private class ConflictResult

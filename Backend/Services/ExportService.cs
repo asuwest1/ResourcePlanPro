@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ResourcePlanPro.API.Data;
 using ResourcePlanPro.API.Models;
+using ResourcePlanPro.API.Utilities;
 
 namespace ResourcePlanPro.API.Services
 {
@@ -151,7 +152,7 @@ namespace ResourcePlanPro.API.Services
 
         public async Task<byte[]> ExportResourceTimelineToCsvAsync(DateTime? startDate = null, int weekCount = 12)
         {
-            var start = startDate ?? GetWeekStartDate(DateTime.Today);
+            var start = startDate ?? DateTimeHelper.GetWeekStartDate(DateTime.Today);
             var departments = await _context.Departments
                 .Where(d => d.IsActive)
                 .Include(d => d.Employees.Where(e => e.IsActive))
@@ -210,13 +211,6 @@ namespace ResourcePlanPro.API.Services
                 return $"\"{field.Replace("\"", "\"\"")}\"";
             }
             return field;
-        }
-
-        private static DateTime GetWeekStartDate(DateTime date)
-        {
-            var diff = date.DayOfWeek - DayOfWeek.Monday;
-            if (diff < 0) diff += 7;
-            return date.AddDays(-diff).Date;
         }
     }
 }

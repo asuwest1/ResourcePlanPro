@@ -83,7 +83,7 @@ async function loadDepartments() {
                         <label>
                             <input type="checkbox" name="departments" 
                                    value="${dept.id}" ${checked ? 'checked' : ''}>
-                            <span>${escapeHtml(dept.name)}</span>
+                            <span>${Utils.escapeHtml(dept.name)}</span>
                         </label>
                     </div>
                 `;
@@ -273,15 +273,8 @@ function applyTemplate() {
 
     if (infoDiv) {
         infoDiv.style.display = 'block';
-        infoDiv.innerHTML = `<p>Applied template: <strong>${escapeHtml(template.templateName)}</strong> - ${template.durationWeeks} weeks, ${template.priority} priority, ${template.departmentIds.length} department(s)</p>`;
+        infoDiv.innerHTML = `<p>Applied template: <strong>${Utils.escapeHtml(template.templateName)}</strong> - ${template.durationWeeks} weeks, ${template.priority} priority, ${template.departmentIds.length} department(s)</p>`;
     }
 
     Utils.showToast('Template applied successfully', 'success');
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

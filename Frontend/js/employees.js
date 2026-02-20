@@ -35,7 +35,7 @@ function populateDepartmentFilter() {
     const select = document.getElementById('departmentFilter');
     let html = '<option value="">All Departments</option>';
     departments.forEach(dept => {
-        html += `<option value="${dept.id}">${escapeHtml(dept.name)}</option>`;
+        html += `<option value="${dept.id}">${Utils.escapeHtml(dept.name)}</option>`;
     });
     select.innerHTML = html;
 }
@@ -59,18 +59,18 @@ function renderEmployees() {
                         ${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}
                     </div>
                     <div class="employee-info">
-                        <h3>${escapeHtml(employee.fullName)}</h3>
-                        <p>${escapeHtml(employee.jobTitle)}</p>
+                        <h3>${Utils.escapeHtml(employee.fullName)}</h3>
+                        <p>${Utils.escapeHtml(employee.jobTitle)}</p>
                     </div>
                 </div>
                 <div class="employee-details">
                     <div class="detail-row">
                         <span class="label">Department:</span>
-                        <span>${escapeHtml(employee.departmentName)}</span>
+                        <span>${Utils.escapeHtml(employee.departmentName)}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Email:</span>
-                        <span>${escapeHtml(employee.email)}</span>
+                        <span>${Utils.escapeHtml(employee.email)}</span>
                     </div>
                     <div class="detail-row">
                         <span class="label">Hours/Week:</span>
@@ -79,7 +79,7 @@ function renderEmployees() {
                     ${employee.skills ? `
                     <div class="detail-row">
                         <span class="label">Skills:</span>
-                        <span>${escapeHtml(employee.skills)}</span>
+                        <span>${Utils.escapeHtml(employee.skills)}</span>
                     </div>` : ''}
                 </div>
             </div>
@@ -128,11 +128,4 @@ function initializeExport() {
             }
         });
     }
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
