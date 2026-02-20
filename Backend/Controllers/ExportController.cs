@@ -6,7 +6,7 @@ namespace ResourcePlanPro.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = "Admin,ProjectManager,DepartmentManager")]
     public class ExportController : ControllerBase
     {
         private readonly IExportService _exportService;

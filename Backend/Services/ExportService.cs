@@ -166,6 +166,16 @@ namespace ResourcePlanPro.API.Services
             }
             sb.AppendLine(header);
 
+            // Pre-fetch all assignment data in a single query to avoid N+1
+            var endDate = start.AddDays(weekCount * 7);
+            var assignmentsByDeptWeek = await _context.EmployeeAssignments
+                .Where(a => a.WeekStartDate >= start && a.WeekStartDate < endDate)
+                .GroupBy(a => new { a.Employee.DepartmentId, a.WeekStartDate })
+                .Select(g => new { g.Key.DepartmentId, g.Key.WeekStartDate, Total = g.Sum(x => x.AssignedHours) })
+                .ToListAsync();
+            var assignmentLookup = assignmentsByDeptWeek.ToDictionary(
+                x => (x.DepartmentId, x.WeekStartDate), x => x.Total);
+
             foreach (var dept in departments)
             {
                 var capacity = dept.Employees.Sum(e => e.HoursPerWeek);
@@ -174,10 +184,7 @@ namespace ResourcePlanPro.API.Services
                 for (int i = 0; i < weekCount; i++)
                 {
                     var weekStart = start.AddDays(i * 7);
-                    var assigned = await _context.EmployeeAssignments
-                        .Where(a => a.Employee.DepartmentId == dept.DepartmentId
-                                    && a.WeekStartDate == weekStart)
-                        .SumAsync(a => a.AssignedHours);
+                    var assigned = assignmentLookup.GetValueOrDefault((dept.DepartmentId, weekStart), 0);
 
                     var utilization = capacity > 0 ? Math.Round(assigned / capacity * 100, 1) : 0;
                     row += $",{utilization}%";

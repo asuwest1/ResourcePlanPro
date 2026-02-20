@@ -41,6 +41,10 @@ namespace ResourcePlanPro.API.Services
 
         public async Task<List<NotificationLogDto>> GetNotificationHistoryAsync(int count = 50)
         {
+            // Cap the count to prevent unbounded queries
+            if (count < 1) count = 1;
+            if (count > 500) count = 500;
+
             var logs = await _context.NotificationLogs
                 .OrderByDescending(n => n.CreatedDate)
                 .Take(count)
@@ -207,6 +211,12 @@ namespace ResourcePlanPro.API.Services
 
         private async Task SendEmailAsync(string to, string subject, string body)
         {
+            // Basic email format validation
+            if (string.IsNullOrWhiteSpace(to) || !to.Contains('@') || to.Contains('\n') || to.Contains('\r'))
+            {
+                throw new ArgumentException($"Invalid email address: {to}");
+            }
+
             var smtpHost = _configuration["SmtpSettings:Host"];
             var smtpPort = int.TryParse(_configuration["SmtpSettings:Port"], out var port) ? port : 587;
             var smtpUser = _configuration["SmtpSettings:Username"];
@@ -226,7 +236,7 @@ namespace ResourcePlanPro.API.Services
             }
             client.EnableSsl = true;
 
-            var message = new MailMessage(fromEmail, to, subject, body)
+            using var message = new MailMessage(fromEmail, to, subject, body)
             {
                 IsBodyHtml = true
             };

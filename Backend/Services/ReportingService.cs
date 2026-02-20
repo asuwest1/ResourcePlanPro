@@ -45,17 +45,19 @@ namespace ResourcePlanPro.API.Services
                 .Include(d => d.Employees.Where(e => e.IsActive))
                 .ToListAsync();
 
+            // Pre-fetch all assignments for this week in a single query
+            var assignedByDept = await _context.EmployeeAssignments
+                .Where(a => a.WeekStartDate == weekStart)
+                .GroupBy(a => a.Employee.DepartmentId)
+                .Select(g => new { DepartmentId = g.Key, Total = g.Sum(x => x.AssignedHours) })
+                .ToDictionaryAsync(x => x.DepartmentId, x => x.Total);
+
             var result = new List<DepartmentUtilizationChartData>();
 
             foreach (var dept in departments)
             {
                 var capacity = dept.Employees.Sum(e => e.HoursPerWeek);
-                var employeeIds = dept.Employees.Select(e => e.EmployeeId).ToList();
-
-                var assigned = await _context.EmployeeAssignments
-                    .Where(a => employeeIds.Contains(a.EmployeeId)
-                                && a.WeekStartDate == weekStart)
-                    .SumAsync(a => a.AssignedHours);
+                var assigned = assignedByDept.GetValueOrDefault(dept.DepartmentId, 0);
 
                 result.Add(new DepartmentUtilizationChartData
                 {
@@ -92,29 +94,33 @@ namespace ResourcePlanPro.API.Services
                 .Where(e => e.IsActive)
                 .ToListAsync();
             var totalCapacity = allEmployees.Sum(e => e.HoursPerWeek);
+            var employeeCapacity = allEmployees.ToDictionary(e => e.EmployeeId, e => e.HoursPerWeek);
+
+            // Pre-fetch all assignment data for the full date range in one query
+            var endDate = startDate.AddDays(weekCount * 7);
+            var allAssignments = await _context.EmployeeAssignments
+                .Where(a => a.WeekStartDate >= startDate && a.WeekStartDate < endDate)
+                .GroupBy(a => new { a.WeekStartDate, a.EmployeeId })
+                .Select(g => new
+                {
+                    g.Key.WeekStartDate,
+                    g.Key.EmployeeId,
+                    TotalHours = g.Sum(x => x.AssignedHours)
+                })
+                .ToListAsync();
+
+            var assignmentsByWeek = allAssignments
+                .GroupBy(a => a.WeekStartDate)
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             for (int i = 0; i < weekCount; i++)
             {
                 var weekStart = startDate.AddDays(i * 7);
 
-                var totalAssigned = await _context.EmployeeAssignments
-                    .Where(a => a.WeekStartDate == weekStart)
-                    .SumAsync(a => a.AssignedHours);
-
-                var conflictCount = await _context.EmployeeAssignments
-                    .Where(a => a.WeekStartDate == weekStart)
-                    .GroupBy(a => a.EmployeeId)
-                    .Select(g => new
-                    {
-                        EmployeeId = g.Key,
-                        TotalHours = g.Sum(x => x.AssignedHours)
-                    })
-                    .Join(_context.Employees,
-                        a => a.EmployeeId,
-                        e => e.EmployeeId,
-                        (a, e) => new { a.TotalHours, e.HoursPerWeek })
-                    .Where(x => x.TotalHours > x.HoursPerWeek)
-                    .CountAsync();
+                var weekData = assignmentsByWeek.GetValueOrDefault(weekStart);
+                var totalAssigned = weekData?.Sum(a => a.TotalHours) ?? 0;
+                var conflictCount = weekData?.Count(a =>
+                    employeeCapacity.TryGetValue(a.EmployeeId, out var cap) && a.TotalHours > cap) ?? 0;
 
                 result.Add(new WeeklyTrendData
                 {

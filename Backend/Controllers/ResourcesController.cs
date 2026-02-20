@@ -27,7 +27,7 @@ namespace ResourcePlanPro.API.Controllers
             _logger = logger;
         }
 
-        // Labor Requirements Endpoints
+        // Labor Requirements Endpoints (read)
         [HttpGet("requirements")]
         public async Task<ActionResult<ApiResponse<List<LaborRequirementDto>>>> GetLaborRequirements(
             [FromQuery] int projectId,
@@ -54,6 +54,7 @@ namespace ResourcePlanPro.API.Controllers
         }
 
         [HttpPost("requirements")]
+        [Authorize(Roles = "Admin,ProjectManager,DepartmentManager")]
         public async Task<ActionResult<ApiResponse<bool>>> SaveLaborRequirement([FromBody] SaveLaborRequirementRequest request)
         {
             try
@@ -91,6 +92,7 @@ namespace ResourcePlanPro.API.Controllers
         }
 
         [HttpPost("requirements/bulk")]
+        [Authorize(Roles = "Admin,ProjectManager,DepartmentManager")]
         public async Task<ActionResult<ApiResponse<bool>>> BulkSaveLaborRequirements([FromBody] BulkLaborRequirementRequest request)
         {
             try
@@ -192,6 +194,7 @@ namespace ResourcePlanPro.API.Controllers
         }
 
         [HttpPost("assignments")]
+        [Authorize(Roles = "Admin,ProjectManager,DepartmentManager")]
         public async Task<ActionResult<ApiResponse<bool>>> CreateAssignment([FromBody] CreateAssignmentRequest request)
         {
             try
@@ -237,6 +240,7 @@ namespace ResourcePlanPro.API.Controllers
         }
 
         [HttpPut("assignments/{id}")]
+        [Authorize(Roles = "Admin,ProjectManager,DepartmentManager")]
         public async Task<ActionResult<ApiResponse<bool>>> UpdateAssignment(int id, [FromBody] CreateAssignmentRequest request)
         {
             try
@@ -282,6 +286,7 @@ namespace ResourcePlanPro.API.Controllers
         }
 
         [HttpDelete("assignments/{id}")]
+        [Authorize(Roles = "Admin,ProjectManager,DepartmentManager")]
         public async Task<ActionResult<ApiResponse<bool>>> DeleteAssignment(int id)
         {
             try
@@ -351,6 +356,7 @@ namespace ResourcePlanPro.API.Controllers
 
         // Bulk Assignment
         [HttpPost("assignments/bulk")]
+        [Authorize(Roles = "Admin,ProjectManager,DepartmentManager")]
         public async Task<ActionResult<ApiResponse<int>>> BulkCreateAssignments(
             [FromBody] BulkEmployeeAssignmentRequest request)
         {

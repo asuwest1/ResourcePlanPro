@@ -27,12 +27,20 @@ const API = {
                 throw new Error('Unauthorized');
             }
             
-            const data = await response.json();
-            
+            // Handle responses with no body (e.g. 204 No Content)
+            const contentType = response.headers.get('content-type');
+            let data;
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                data = text ? { success: response.ok, message: text } : { success: response.ok };
+            }
+
             if (!response.ok) {
                 throw new Error(data.message || 'API request failed');
             }
-            
+
             return data;
         } catch (error) {
             console.error('API request error:', error);

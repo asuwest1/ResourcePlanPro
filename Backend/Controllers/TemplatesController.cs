@@ -193,9 +193,7 @@ namespace ResourcePlanPro.API.Controllers
                 var project = await _templateService.CreateProjectFromTemplateAsync(request);
                 var projectDto = await _projectService.GetProjectByIdAsync(project.ProjectId);
 
-                return CreatedAtAction(
-                    nameof(ProjectsController),
-                    new { id = project.ProjectId },
+                return Created($"/api/projects/{project.ProjectId}",
                     new ApiResponse<ProjectDto>
                     {
                         Success = true,

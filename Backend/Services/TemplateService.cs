@@ -142,68 +142,97 @@ namespace ResourcePlanPro.API.Services
 
             var endDate = request.StartDate.AddDays(template.DurationWeeks * 7);
 
-            var project = new Project
-            {
-                ProjectName = request.ProjectName,
-                Description = request.Description ?? template.Description,
-                ProjectManagerId = request.ProjectManagerId,
-                StartDate = request.StartDate,
-                EndDate = endDate,
-                Priority = template.Priority,
-                Status = "Planning",
-                IsActive = true,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow
-            };
+            // Use a transaction to ensure atomicity — all or nothing
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
-
-            // Add departments
-            if (!string.IsNullOrEmpty(template.DepartmentIds))
+            try
             {
-                var deptIds = JsonSerializer.Deserialize<List<int>>(template.DepartmentIds) ?? new List<int>();
-                foreach (var deptId in deptIds)
+                var project = new Project
                 {
-                    _context.ProjectDepartments.Add(new ProjectDepartment
-                    {
-                        ProjectId = project.ProjectId,
-                        DepartmentId = deptId,
-                        IsActive = true,
-                        CreatedDate = DateTime.UtcNow
-                    });
-                }
+                    ProjectName = request.ProjectName,
+                    Description = request.Description ?? template.Description,
+                    ProjectManagerId = request.ProjectManagerId,
+                    StartDate = request.StartDate,
+                    EndDate = endDate,
+                    Priority = template.Priority,
+                    Status = "Planning",
+                    IsActive = true,
+                    CreatedDate = DateTime.UtcNow,
+                    ModifiedDate = DateTime.UtcNow
+                };
+
+                _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
-            }
 
-            // Add default labor requirements
-            if (!string.IsNullOrEmpty(template.DefaultHoursJson))
-            {
-                var hours = JsonSerializer.Deserialize<List<TemplateHourEntry>>(template.DefaultHoursJson)
-                    ?? new List<TemplateHourEntry>();
-
-                foreach (var entry in hours)
+                // Add departments
+                if (!string.IsNullOrEmpty(template.DepartmentIds))
                 {
-                    var weekStart = request.StartDate.AddDays(entry.WeekNumber * 7);
-                    // Align to Monday
-                    var dayOfWeek = (int)weekStart.DayOfWeek;
-                    var diff = dayOfWeek == 0 ? -6 : 1 - dayOfWeek;
-                    weekStart = weekStart.AddDays(diff);
-
-                    _context.WeeklyLaborRequirements.Add(new WeeklyLaborRequirement
+                    List<int> deptIds;
+                    try
                     {
-                        ProjectId = project.ProjectId,
-                        DepartmentId = entry.DepartmentId,
-                        WeekStartDate = weekStart,
-                        RequiredHours = entry.Hours,
-                        CreatedDate = DateTime.UtcNow,
-                        ModifiedDate = DateTime.UtcNow
-                    });
-                }
-                await _context.SaveChangesAsync();
-            }
+                        deptIds = JsonSerializer.Deserialize<List<int>>(template.DepartmentIds) ?? new List<int>();
+                    }
+                    catch (JsonException)
+                    {
+                        deptIds = new List<int>();
+                    }
 
-            return project;
+                    foreach (var deptId in deptIds)
+                    {
+                        _context.ProjectDepartments.Add(new ProjectDepartment
+                        {
+                            ProjectId = project.ProjectId,
+                            DepartmentId = deptId,
+                            IsActive = true,
+                            CreatedDate = DateTime.UtcNow
+                        });
+                    }
+                }
+
+                // Add default labor requirements
+                if (!string.IsNullOrEmpty(template.DefaultHoursJson))
+                {
+                    List<TemplateHourEntry> hours;
+                    try
+                    {
+                        hours = JsonSerializer.Deserialize<List<TemplateHourEntry>>(template.DefaultHoursJson)
+                            ?? new List<TemplateHourEntry>();
+                    }
+                    catch (JsonException)
+                    {
+                        hours = new List<TemplateHourEntry>();
+                    }
+
+                    foreach (var entry in hours)
+                    {
+                        var weekStart = request.StartDate.AddDays(entry.WeekNumber * 7);
+                        // Align to Monday
+                        var dayOfWeek = (int)weekStart.DayOfWeek;
+                        var diff = dayOfWeek == 0 ? -6 : 1 - dayOfWeek;
+                        weekStart = weekStart.AddDays(diff);
+
+                        _context.WeeklyLaborRequirements.Add(new WeeklyLaborRequirement
+                        {
+                            ProjectId = project.ProjectId,
+                            DepartmentId = entry.DepartmentId,
+                            WeekStartDate = weekStart,
+                            RequiredHours = entry.Hours,
+                            CreatedDate = DateTime.UtcNow,
+                            ModifiedDate = DateTime.UtcNow
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return project;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         private ProjectTemplateDto MapToDto(ProjectTemplate template)

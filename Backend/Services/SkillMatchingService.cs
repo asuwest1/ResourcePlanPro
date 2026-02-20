@@ -28,7 +28,7 @@ namespace ResourcePlanPro.API.Services
         {
             var query = _context.Employees
                 .Include(e => e.Department)
-                .Include(e => e.Assignments)
+                .Include(e => e.Assignments.Where(a => a.WeekStartDate == request.WeekStartDate))
                 .Where(e => e.IsActive);
 
             if (request.DepartmentId.HasValue)
