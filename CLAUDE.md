@@ -16,20 +16,20 @@ ResourcePlan Pro is an enterprise labor resource planning system for project man
 
 ```
 Backend/           .NET 6.0 Web API
-  Controllers/     7 controllers (Auth, Projects, Resources, Employees, Departments, DashboardEmployees, Health)
-  Services/        Business logic (AuthService, ProjectService, ResourceService, EmployeeService, DashboardEmployeeServices)
-  Models/          Entities.cs (8 table entities + 4 view/query models), DTOs.cs (19 DTOs)
+  Controllers/     11 controllers (Auth, Projects, Resources, Employees, Departments, DashboardEmployees, Health, Export, Notifications, Reports, Templates)
+  Services/        10 services (Auth, Project, Resource, Employee, DashboardEmployee, Export, Notification, Reporting, SkillMatching, Template)
+  Models/          Entities.cs (10 table entities + 4 view/query models), DTOs.cs (37 DTOs/request models)
   Data/            EF Core DbContext (ResourcePlanProContext)
   Middleware/      Global error handling (ErrorHandlingMiddleware)
   Utilities/       Helper classes (DateTimeHelper, ValidationHelper, CalculationHelper, StringHelper)
   Program.cs       Application entry point
 Frontend/          Static HTML/CSS/JS
-  js/              10 JS modules (config, auth, api, dashboard, projects, project-detail, etc.)
-  pages/           7 HTML pages (employees, departments, project-create/detail/edit, projects, reports)
-  css/styles.css   All styles (~1450 lines)
+  js/              11 JS modules (config, auth, api, dashboard, projects, project-detail, project-form, employees, reports, calendar, login)
+  pages/           8 HTML pages (employees, departments, project-create/detail/edit, projects, reports, calendar)
+  css/styles.css   All styles (~1790 lines)
   login.html       Login page
   index.html       Dashboard
-Database/          SQL Server scripts (run in order: 01_Create, 02_SampleData, 03_ViewsAndProcs)
+Database/          SQL Server scripts (run in order: 01_Create, 02_SampleData, 03_ViewsAndProcs, 04_V110_Migration)
 *.ps1, *.bat       Root-level scripts (Deploy.ps1, Start-Dev.ps1, Test-API.ps1, Setup-Database.bat)
 *.md               Root-level docs (README, INSTALL, DEPLOYMENT, QUICKSTART, CHANGELOG, etc.)
 ```
@@ -62,6 +62,7 @@ python -m http.server 8080
 sqlcmd -S localhost -i Database/01_CreateDatabase.sql
 sqlcmd -S localhost -d ResourcePlanPro -i Database/02_SampleData.sql
 sqlcmd -S localhost -d ResourcePlanPro -i Database/03_ViewsAndProcedures.sql
+sqlcmd -S localhost -d ResourcePlanPro -i Database/04_V110_Migration.sql
 ```
 
 ## Testing
@@ -106,7 +107,7 @@ No explicit linting or formatting tools are configured (no ESLint, Prettier, Edi
 ### SQL
 
 - PascalCase for table/column names
-- 8 tables: Users, Departments, Employees, Projects, ProjectDepartments, WeeklyLaborRequirements, EmployeeAssignments, AuditLog
+- 10 tables: Users, Departments, Employees, Projects, ProjectDepartments, WeeklyLaborRequirements, EmployeeAssignments, AuditLog, ProjectTemplates, NotificationLogs
 - FK constraints, cascade delete for parent-child, indexes on FKs and frequently queried columns
 
 ## Configuration

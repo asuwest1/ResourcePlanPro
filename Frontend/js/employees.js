@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadEmployees();
     initializeFilters();
     initializeSearch();
+    initializeExport();
 });
 
 async function loadEmployees() {
@@ -27,11 +28,10 @@ async function loadEmployees() {
 }
 
 function populateDepartmentFilter() {
-    const departments = [...new Set(allEmployees.map(e => ({
-        id: e.departmentId,
-        name: e.departmentName
-    })))];
-    
+    const departments = [...new Map(
+        allEmployees.map(e => [e.departmentId, { id: e.departmentId, name: e.departmentName }])
+    ).values()];
+
     const select = document.getElementById('departmentFilter');
     let html = '<option value="">All Departments</option>';
     departments.forEach(dept => {
@@ -116,7 +116,22 @@ function applyFilters() {
     renderEmployees();
 }
 
+function initializeExport() {
+    const btn = document.getElementById('btnExportEmployees');
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            try {
+                await API.exports.download(API.exports.getEmployeesUrl(), 'employees.csv');
+                Utils.showToast('Employees exported successfully', 'success');
+            } catch (error) {
+                Utils.showToast('Error exporting employees', 'error');
+            }
+        });
+    }
+}
+
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;

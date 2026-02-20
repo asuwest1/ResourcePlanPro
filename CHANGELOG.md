@@ -101,11 +101,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Known Limitations
 - Currently supports single organization
-- No email notifications (can be added)
 - No file attachments for projects
 - No real-time collaboration features
 - No mobile native apps
-- Basic reporting (advanced reporting can be added)
 
 ### Browser Support
 - Chrome 90+
@@ -128,16 +126,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## Future Enhancements (Roadmap)
+## [1.1.0] - 2026-02-20
 
-### Version 1.1.0 (Planned)
-- [ ] Email notifications for resource conflicts
-- [ ] Export to Excel functionality
-- [ ] Advanced reporting with charts
-- [ ] Project templates
-- [ ] Bulk employee assignment
-- [ ] Resource calendar view
-- [ ] Skills-based matching
+### Added - Email Notifications for Resource Conflicts
+- Backend `NotificationService` with SMTP email sending and graceful fallback to queued notifications
+- `NotificationsController` with endpoints: GET history, POST send-conflict-report, POST check-conflicts
+- `NotificationLog` entity for tracking notification delivery status (Pending/Sent/Queued)
+- HTML-formatted email body with conflict detail tables
+- Frontend notification panel in Reports page with send form and history viewer
+
+### Added - Export to CSV Functionality
+- Backend `ExportService` with CSV generation for projects, employees, assignments, conflicts, and resource timelines
+- `ExportController` with 5 GET endpoints returning file downloads
+- Frontend export buttons on Projects list, Employees list, Project Detail, and Reports pages
+- Proper CSV escaping for special characters
+
+### Added - Advanced Reporting with Charts
+- Backend `ReportingService` aggregating department utilization, project status distribution, weekly trends, skill demand, and top employee utilization
+- `ReportsController` with GET endpoint supporting date range and week count parameters
+- Frontend canvas-based chart visualizations (no external chart library):
+  - Department utilization bar chart
+  - Project status pie chart with legend
+  - Weekly trend line+bar combo chart (hours + conflict counts)
+  - Skill demand bar chart
+  - Top employees horizontal bar list
+- Tabbed Reports page layout (Conflicts, Charts & Analytics, Notifications)
+
+### Added - Project Templates
+- Backend `TemplateService` with full CRUD, create-from-project, and create-project-from-template
+- `TemplatesController` with 6 endpoints including POST from-project/{id} and POST create-project
+- `ProjectTemplate` entity with JSON-serialized department IDs and default hours
+- Frontend template selection dropdown on Project Create page with auto-fill of priority, description, dates, and departments
+
+### Added - Bulk Employee Assignment
+- Backend `BulkCreateAssignmentsAsync` in `ResourceService` for creating/updating multiple assignments in one request
+- POST `api/resources/assignments/bulk` endpoint in `ResourcesController`
+- Frontend bulk assignment panel on Project Detail page with multi-select checkboxes and hour inputs
+
+### Added - Resource Calendar View
+- Backend `GetCalendarEventsAsync` in `ResourceService` returning assignment data with employee utilization
+- GET `api/resources/calendar` endpoint in `ResourcesController`
+- New `calendar.html` page with employee-by-week grid layout
+- `calendar.js` with prev/next/today navigation, department/employee filters, and color-coded utilization cells (green/yellow/red)
+- Calendar legend showing utilization thresholds
+- Calendar link added to navigation on all pages
+
+### Added - Skills-Based Matching
+- Backend `SkillMatchingService` with employee-to-skill matching, match percentage calculation, and sorting by best match then availability
+- POST `api/resources/skill-match` and GET `api/resources/skills` endpoints
+- Frontend skill matching panel on Project Detail page with skill tag filters and match results table
+- Quick-assign capability from skill match results
+
+### Changed
+- Extended `api.js` with new API modules: templates, notifications, reports, exports, and additional resource endpoints
+- Updated `project-detail.js` with template save, bulk assignment, skill matching, and export functionality
+- Updated `project-form.js` with template loading and applying
+- Updated `projects.js` and `employees.js` with export button handlers
+- Rewrote `reports.js` with tabbed layout, canvas charts, and notification management
+- Added ~340 lines of CSS for v1.1.0 feature styles (tabs, calendar, charts, skill tags, modals)
+- Updated `Program.cs` with DI registrations for all new services (interface + implementation)
+- Added `SmtpSettings` configuration section to `appsettings.json`
+
+### Database
+- New `ProjectTemplates` table for storing reusable project templates
+- New `NotificationLogs` table for tracking notification delivery
+- Migration script: `Database/04_V110_Migration.sql`
+
+---
+
+## Future Enhancements (Roadmap)
 
 ### Version 1.2.0 (Planned)
 - [ ] Mobile native apps (iOS/Android)

@@ -305,4 +305,74 @@ namespace ResourcePlanPro.API.Models
         public int ProjectCount { get; set; }
         public string Projects { get; set; } = string.Empty;
     }
+
+    // v1.1.0 Entities
+
+    public class ProjectTemplate
+    {
+        [Key]
+        public int TemplateId { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string TemplateName { get; set; } = string.Empty;
+
+        [StringLength(1000)]
+        public string? Description { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string Priority { get; set; } = "Medium";
+
+        public int DurationWeeks { get; set; } = 12;
+
+        public string? DepartmentIds { get; set; }
+
+        public string? DefaultHoursJson { get; set; }
+
+        public int CreatedByUserId { get; set; }
+
+        public bool IsActive { get; set; } = true;
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        [ForeignKey("CreatedByUserId")]
+        public virtual User CreatedBy { get; set; } = null!;
+    }
+
+    public class NotificationLog
+    {
+        [Key]
+        public int NotificationId { get; set; }
+
+        [Required]
+        [StringLength(50)]
+        public string NotificationType { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(255)]
+        public string RecipientEmail { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(500)]
+        public string Subject { get; set; } = string.Empty;
+
+        public string Body { get; set; } = string.Empty;
+
+        public int? RelatedEntityId { get; set; }
+
+        [StringLength(100)]
+        public string? RelatedEntityType { get; set; }
+
+        [Required]
+        [StringLength(20)]
+        public string Status { get; set; } = "Pending";
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+
+        public DateTime? SentDate { get; set; }
+
+        [StringLength(1000)]
+        public string? ErrorMessage { get; set; }
+    }
 }

@@ -44,7 +44,8 @@ builder.Services.AddAuthentication(options =>
 
 // Configure CORS
 var corsSettings = builder.Configuration.GetSection("CorsSettings");
-var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new[] { "*" };
+var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>()
+    ?? throw new InvalidOperationException("CorsSettings:AllowedOrigins not configured");
 
 builder.Services.AddCors(options =>
 {
@@ -59,10 +60,17 @@ builder.Services.AddCors(options =>
 
 // Register application services
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<ProjectService>();
-builder.Services.AddScoped<ResourceService>();
-builder.Services.AddScoped<DashboardService>();
-builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+// v1.1.0 services
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ITemplateService, TemplateService>();
+builder.Services.AddScoped<IExportService, ExportService>();
+builder.Services.AddScoped<IReportingService, ReportingService>();
+builder.Services.AddScoped<ISkillMatchingService, SkillMatchingService>();
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
@@ -131,22 +139,23 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Security headers middleware
-app.Use(async (context, next) =>
-{
-    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://localhost:7001");
-    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-    context.Response.Headers.Add("X-Frame-Options", "DENY");
-    context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-    context.Response.Headers.Add("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-    await next();
-});
-
-// Enable error handling middleware
+// Error handling middleware first so it catches errors from all other middleware
 app.UseErrorHandling();
 
-// Enable CORS
+// Enable CORS (before security headers so error responses also get CORS headers)
 app.UseCors("AllowSpecificOrigins");
+
+// Security headers middleware (connect-src driven by CORS config, not hardcoded)
+var connectSources = string.Join(" ", allowedOrigins.Select(o => o.TrimEnd('/')));
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Content-Security-Policy"] = $"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' {connectSources}";
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
+    await next();
+});
 
 // Enable Authentication & Authorization
 app.UseAuthentication();
@@ -160,7 +169,7 @@ app.MapGet("/api/health", () => Results.Ok(new
 {
     status = "healthy",
     timestamp = DateTime.UtcNow,
-    version = "1.0.0"
+    version = "1.1.0"
 }));
 
 // Root endpoint

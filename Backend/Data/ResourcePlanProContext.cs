@@ -25,6 +25,10 @@ namespace ResourcePlanPro.API.Data
         public DbSet<DepartmentUtilization> DepartmentUtilizations { get; set; } = null!;
         public DbSet<ResourceConflict> ResourceConflicts { get; set; } = null!;
 
+        // v1.1.0 entities
+        public DbSet<ProjectTemplate> ProjectTemplates { get; set; } = null!;
+        public DbSet<NotificationLog> NotificationLogs { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -130,6 +134,25 @@ namespace ResourcePlanPro.API.Data
             modelBuilder.Entity<ProjectStaffingStatus>().HasNoKey().ToView(null);
             modelBuilder.Entity<DepartmentUtilization>().HasNoKey().ToView(null);
             modelBuilder.Entity<ResourceConflict>().HasNoKey().ToView(null);
+
+            // v1.1.0 entity configurations
+            modelBuilder.Entity<ProjectTemplate>(entity =>
+            {
+                entity.HasIndex(pt => pt.TemplateName).IsUnique();
+                entity.HasIndex(pt => pt.IsActive);
+
+                entity.HasOne(pt => pt.CreatedBy)
+                    .WithMany()
+                    .HasForeignKey(pt => pt.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<NotificationLog>(entity =>
+            {
+                entity.HasIndex(n => n.CreatedDate);
+                entity.HasIndex(n => n.Status);
+                entity.HasIndex(n => n.RecipientEmail);
+            });
         }
     }
 }

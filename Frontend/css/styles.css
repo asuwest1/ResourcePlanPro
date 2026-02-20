@@ -1451,3 +1451,342 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================
+   v1.1.0 Styles
+   ============================================ */
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color, #3498db);
+}
+
+.tab-btn.active {
+    color: var(--primary-color, #3498db);
+    border-bottom-color: var(--primary-color, #3498db);
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Calendar View */
+.calendar-container {
+    overflow-x: auto;
+}
+
+.calendar-scroll {
+    overflow-x: auto;
+    min-width: 100%;
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.calendar-table th,
+.calendar-table td {
+    border: 1px solid #dee2e6;
+    padding: 0.4rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.calendar-table thead th {
+    background: #f8f9fa;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.cal-employee-header,
+.cal-dept-header {
+    text-align: left !important;
+    min-width: 120px;
+}
+
+.cal-employee-cell {
+    text-align: left !important;
+    font-weight: 500;
+    min-width: 120px;
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 1;
+}
+
+.cal-dept-cell {
+    text-align: left !important;
+    color: #7f8c8d;
+    font-size: 0.8rem;
+}
+
+.cal-week-header {
+    min-width: 70px;
+    font-size: 0.8rem;
+}
+
+.cal-cell {
+    min-width: 70px;
+    height: 40px;
+    cursor: default;
+    transition: opacity 0.2s;
+}
+
+.cal-cell:hover {
+    opacity: 0.85;
+}
+
+.cal-hours {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.cal-util {
+    font-size: 0.7rem;
+    opacity: 0.85;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 0;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+}
+
+/* Employee Utilization List (Reports) */
+.employee-util-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.employee-util-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.employee-util-info {
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+}
+
+.employee-util-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.employee-util-dept {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+}
+
+.employee-util-bar-container {
+    flex: 1;
+    height: 8px;
+    background: #ecf0f1;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.employee-util-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+.employee-util-pct {
+    min-width: 40px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Skill Tags */
+.skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.5rem 0;
+}
+
+.skill-tag {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.6rem !important;
+    border-radius: 12px !important;
+}
+
+.skill-tag.active {
+    background: var(--primary-color, #3498db) !important;
+    color: white !important;
+    border-color: var(--primary-color, #3498db) !important;
+}
+
+.badge-success {
+    background: #27ae60;
+    color: white;
+}
+
+/* Bulk Assignment Panel */
+.bulk-assignment-panel,
+.skill-match-panel {
+    padding: 1rem 0;
+}
+
+.bulk-assignment-panel h4,
+.skill-match-panel h4 {
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+/* Template Info */
+.template-info {
+    background: #e8f5e9;
+    border-left: 3px solid #27ae60;
+    padding: 0.75rem 1rem;
+    margin-top: 0.75rem;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.9rem;
+}
+
+/* Checkbox Label */
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    margin-right: 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-header h3 {
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #7f8c8d;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filter-group label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #555;
+}
+
+/* Status badges */
+.status-green { color: #27ae60; }
+.status-yellow { color: #f39c12; }
+.status-red { color: #e74c3c; }
+
+/* Canvas Charts responsive */
+canvas {
+    max-width: 100%;
+    height: auto;
+}

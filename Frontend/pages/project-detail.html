@@ -41,6 +41,7 @@
         <a href="employees.html" class="nav-tab">Employees</a>
         <a href="departments.html" class="nav-tab">Departments</a>
         <a href="reports.html" class="nav-tab">Reports</a>
+        <a href="calendar.html" class="nav-tab">Calendar</a>
     </nav>
 
     <!-- Main Content -->
@@ -48,11 +49,13 @@
         <!-- Project Header -->
         <div class="page-header">
             <div>
-                <a href="projects.html" class="breadcrumb">← Back to Projects</a>
+                <a href="projects.html" class="breadcrumb">&larr; Back to Projects</a>
                 <h2 id="projectName">Loading...</h2>
                 <p class="subtitle" id="projectInfo"></p>
             </div>
             <div class="header-actions">
+                <button class="btn btn-outline" id="btnSaveAsTemplate">Save as Template</button>
+                <button class="btn btn-outline" id="btnExportProject">Export CSV</button>
                 <button class="btn btn-outline" id="editProjectBtn">Edit Project</button>
                 <button class="btn btn-danger" id="deleteProjectBtn">Delete</button>
             </div>
